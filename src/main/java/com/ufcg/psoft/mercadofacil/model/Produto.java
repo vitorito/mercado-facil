@@ -27,8 +27,6 @@ public class Produto {
 
 	private boolean isDisponivel;
 
-	private Produto() {	}
-
 	public Produto(String nome, String codigoBarra, String fabricante,
 			BigDecimal preco, String nomeCategoria) {
 		

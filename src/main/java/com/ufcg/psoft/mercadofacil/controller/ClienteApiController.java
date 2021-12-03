@@ -19,6 +19,7 @@ import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
 import com.ufcg.psoft.mercadofacil.service.ClienteService;
+import com.ufcg.psoft.mercadofacil.util.ErroCarrinho;
 import com.ufcg.psoft.mercadofacil.util.ErroCliente;
 
 @RestController
@@ -99,8 +100,16 @@ public class ClienteApiController {
 		if (!clienteOp.isPresent()) {
 			return ErroCliente.erroClienteNaoEnconrtrado(id);
 		}
-				
-		clienteService.removerClienteCadastrado(clienteOp.get());
+		
+		Cliente cliente = clienteOp.get();
+		Optional<Carrinho> carrinhoOp = carrinhoService.getCarrinhoById(cliente.getCpf());
+
+		if (!carrinhoOp.isPresent()) {
+			return ErroCarrinho.erroCarrinhoNaoEncontrado(id);
+		}
+
+		clienteService.removerClienteCadastrado(cliente);
+		carrinhoService.removeCarrinho(carrinhoOp.get());
 
 		return new ResponseEntity<Cliente>(HttpStatus.OK);
 	}

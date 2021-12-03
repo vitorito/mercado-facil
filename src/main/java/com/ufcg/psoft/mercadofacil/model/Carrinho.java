@@ -1,6 +1,7 @@
 package com.ufcg.psoft.mercadofacil.model;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -14,14 +15,40 @@ public class Carrinho {
 	private Long id;
 	
 	@OneToMany(cascade = CascadeType.ALL)
-    private List<Produto> produtos;
+    private Map<Produto, Integer> produtos;
     
     public Carrinho(Long id) {
     	this.id = id;
+		this.produtos = new HashMap<>();
 	}
 
-	public List<Produto> getProduto() {
-		return produtos;
+	public Map<Produto, Integer> getProduto() {
+		return new HashMap<>(produtos);
+	}
+	
+	public void adicionaProdutos(Produto produto, int numDeItens) {
+		if (produtos.containsKey(produto)) {
+			int novaQuantidadeDeProdutos = produtos.get(produto) + numDeItens;
+			produtos.replace(produto, novaQuantidadeDeProdutos);
+			return;
+		}
+		
+		produtos.put(produto, numDeItens);
+	}
+
+	public void removeProdutos(Produto produto, int numDeItens) {
+		int novaQuantidadeDeProdutos = produtos.get(produto) - numDeItens;
+
+		if (novaQuantidadeDeProdutos > 0) {
+			produtos.replace(produto, novaQuantidadeDeProdutos);
+			return;
+		}
+
+		produtos.remove(produto);
+	}
+
+	public void removeTodosProdutos() {
+		produtos.clear();
 	}
 
 	public Long getId() {
@@ -32,5 +59,6 @@ public class Carrinho {
 	public String toString() {
 		return "Carrinho [id=" + id + ", produto=" + produtos.toString() + "]";
 	}
+
 
 }

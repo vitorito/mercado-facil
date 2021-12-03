@@ -12,18 +12,23 @@ import com.ufcg.psoft.mercadofacil.repository.CarrinhoRepository;
 
 @Service
 public class CarrinhoServiceImpl implements CarrinhoService {
-	
+
 	@Autowired
 	private CarrinhoRepository carrinhoRepository;
 
 	@Override
-	public Optional<Carrinho> getcarrinhoById(Long id) {
-		return  carrinhoRepository.findById(id);
+	public Optional<Carrinho> getCarrinhoById(Long id) {
+		return carrinhoRepository.findById(id);
 	}
 
 	@Override
-	public Carrinho criaCarrinho(long id) {
+	public Carrinho criaCarrinho(Long id) {
 		return new Carrinho(id);
+	}
+
+	@Override
+	public void removeCarrinho(Carrinho carrinho) {
+		carrinhoRepository.delete(carrinho);
 	}
 
 	@Override
@@ -32,21 +37,18 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 	}
 
 	@Override
-	public void adicionaProduto(Carrinho carrinho, Produto produto, int numDeItens) {
-		// TODO Auto-generated method stub
-
+	public void adicionaProdutos(Carrinho carrinho, Produto produto, int numDeItens) {
+		carrinho.adicionaProdutos(produto, numDeItens);
 	}
 
 	@Override
-	public void removeProduto(Carrinho carrinho, Produto produto, int numDeItens) {
-		// TODO Auto-generated method stub
-
+	public void removeProdutos(Carrinho carrinho, Produto produto, int numDeItens) {
+		carrinho.removeProdutos(produto, numDeItens);
 	}
 
 	@Override
 	public void removeTodosProdutos(Carrinho carrinho) {
-		// TODO Auto-generated method stub
-
+		carrinho.removeTodosProdutos();
 	}
 
 	@Override

@@ -72,4 +72,42 @@ public class CarrinhoApiController {
 		return new ResponseEntity<Carrinho>(carrinho, HttpStatus.OK);
 	}
 
+	@RequestMapping(value = "/cliente/{idCliente}/carrinho", method = RequestMethod.DELETE)
+	public ResponseEntity<?> removeProdutosDoCarrinho(
+			@PathVariable("idCliente") long idCliente,
+			@RequestBody long idProduto,
+			@RequestBody int numDeItens) {
+
+		Optional<Cliente> clienteOp = clienteService.getClienteById(idCliente);
+
+		if (!clienteOp.isPresent()) {
+			return ErroCliente.erroClienteNaoEnconrtrado(idCliente);
+		}
+		
+		Optional<Produto> produtoOp = produtoService.getProdutoById(idProduto);
+
+		if (!produtoOp.isPresent()) {
+			return ErroProduto.erroProdutoNaoEnconrtrado(idProduto);
+		}
+
+		long idCarrinho = clienteOp.get().getCpf();
+		Optional<Carrinho> carrinhoOp = carrinhoService.getCarrinhoById(idCarrinho);
+
+		if (!carrinhoOp.isPresent()) {
+			return ErroCarrinho.erroCarrinhoNaoEncontrado(idCliente);
+		}
+
+		Carrinho carrinho = carrinhoOp.get();
+		Produto produto = produtoOp.get();
+		
+		if (!carrinhoService.containsProduto(carrinho, produto)) {
+			return ErroCarrinho.erroCarrinhoNaoTemProduto(idProduto);
+		}
+
+		carrinhoService.removeProdutos(carrinho, produto, numDeItens);
+		carrinhoService.salvaCarrinho(carrinho);
+
+		return new ResponseEntity<Carrinho>(carrinho, HttpStatus.OK);
+	}
+
 }

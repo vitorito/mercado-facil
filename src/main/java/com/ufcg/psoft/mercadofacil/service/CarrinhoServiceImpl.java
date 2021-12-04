@@ -57,4 +57,9 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 		return null;
 	}
 
+	@Override
+	public boolean containsProduto(Carrinho carrinho, Produto produto) {
+		return carrinho.containsProduto(produto);
+	}
+
 }

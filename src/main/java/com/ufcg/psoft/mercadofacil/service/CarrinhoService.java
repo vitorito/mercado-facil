@@ -24,4 +24,6 @@ public interface CarrinhoService {
 	
 	public List<Produto> listaProdutos(Carrinho carrinho);
 
+	public boolean containsProduto(Carrinho carrinho, Produto produto);
+
 }

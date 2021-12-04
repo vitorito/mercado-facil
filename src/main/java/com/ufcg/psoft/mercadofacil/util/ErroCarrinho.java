@@ -9,14 +9,22 @@ public class ErroCarrinho {
 
 	static final String CARRINHO_JA_CADASTRADO = "Carrinho do cliente %s já existe.";
 
-	public static ResponseEntity<CustomErrorType> erroCarrinhoNaoEncontrado(long id) {
-		return new ResponseEntity<CustomErrorType>(new CustomErrorType(String.format(ErroCarrinho.NAO_HA_CARRINHO, id)),
+	static final String CARRINHO_NAO_TEM_PRODUTO = "Carrinho não tem o produto %s.";
+
+	public static ResponseEntity<CustomErrorType> erroCarrinhoNaoEncontrado(long idCliente) {
+		return new ResponseEntity<CustomErrorType>(new CustomErrorType(String.format(ErroCarrinho.NAO_HA_CARRINHO, idCliente)),
 				HttpStatus.NOT_FOUND);
 	}
 
-	public static ResponseEntity<CustomErrorType> erroCarrinhoJaCadastrado(long id) {
-		return new ResponseEntity<CustomErrorType>(new CustomErrorType(String.format(ErroCarrinho.CARRINHO_JA_CADASTRADO, id)),
+	public static ResponseEntity<CustomErrorType> erroCarrinhoJaCadastrado(long idCliente) {
+		return new ResponseEntity<CustomErrorType>(new CustomErrorType(String.format(ErroCarrinho.CARRINHO_JA_CADASTRADO, idCliente)),
 				HttpStatus.CONFLICT);
+	}
+
+	public static ResponseEntity<?> erroCarrinhoNaoTemProduto(long idProduto) {
+		return new ResponseEntity<CustomErrorType>(
+			new CustomErrorType(String.format(ErroCarrinho.CARRINHO_NAO_TEM_PRODUTO, idProduto)),
+			HttpStatus.NOT_FOUND);
 	}
 
 }

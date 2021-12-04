@@ -17,7 +17,6 @@ import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
 import com.ufcg.psoft.mercadofacil.service.ClienteService;
-import com.ufcg.psoft.mercadofacil.service.LoteService;
 import com.ufcg.psoft.mercadofacil.service.ProdutoService;
 import com.ufcg.psoft.mercadofacil.util.ErroCarrinho;
 import com.ufcg.psoft.mercadofacil.util.ErroCliente;
@@ -33,9 +32,6 @@ public class CarrinhoApiController {
 
 	@Autowired
 	ClienteService clienteService;
-
-	@Autowired
-	LoteService loteService;
 
 	@Autowired
 	ProdutoService produtoService;

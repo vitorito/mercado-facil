@@ -1,8 +1,9 @@
 package com.ufcg.psoft.mercadofacil.model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -13,37 +14,40 @@ public class Carrinho {
 	@Id
 	private Long id;
 
-	@OneToMany
-	private Map<Produto, Integer> produtos;
+	@OneToMany(cascade = CascadeType.ALL)
+	private List<ItemDoCarrinho> produtos;
 
 	public Carrinho(Long id) {
 		this.id = id;
-		this.produtos = new HashMap<>();
+		this.produtos = new ArrayList<>();
 	}
 
-	public Map<Produto, Integer> getProdutos() {
-		return new HashMap<>(produtos);
+	public List<ItemDoCarrinho> getProdutos() {
+		return new ArrayList<>(produtos);
 	}
 
 	public void adicionaProdutos(Produto produto, int numDeItens) {
-		if (produtos.containsKey(produto)) {
-			int novaQuantidadeDeProdutos = produtos.get(produto) + numDeItens;
-			produtos.replace(produto, novaQuantidadeDeProdutos);
+		ItemDoCarrinho itemDoCarrinho = getItemDoCarrinho(produto);
+
+		if (itemDoCarrinho != null) {
+			int novaQuantidadeDeProdutos = itemDoCarrinho.getNumDeItens() + numDeItens;
+			itemDoCarrinho.setNumDeItens(novaQuantidadeDeProdutos);
 			return;
 		}
 
-		produtos.put(produto, numDeItens);
+		produtos.add(new ItemDoCarrinho(produto, numDeItens));
 	}
 
 	public void removeProdutos(Produto produto, int numDeItens) {
-		int novaQuantidadeDeProdutos = produtos.get(produto) - numDeItens;
+		ItemDoCarrinho itemDoCarrinho = getItemDoCarrinho(produto);
+		int novaQuantidadeDeProdutos = itemDoCarrinho.getNumDeItens() - numDeItens;
 
 		if (novaQuantidadeDeProdutos > 0) {
-			produtos.replace(produto, novaQuantidadeDeProdutos);
+			itemDoCarrinho.setNumDeItens(novaQuantidadeDeProdutos);
 			return;
 		}
 
-		produtos.remove(produto);
+		produtos.remove(itemDoCarrinho);
 	}
 
 	public void removeTodosProdutos() {
@@ -53,14 +57,32 @@ public class Carrinho {
 	public Long getId() {
 		return id;
 	}
-	
+
 	public boolean containsProduto(Produto produto) {
-		return produtos.containsKey(produto);
+		return this.getItemDoCarrinho(produto) != null;
+	}
+
+	private ItemDoCarrinho getItemDoCarrinho(Produto produto) {
+		ItemDoCarrinho result = null;
+
+		for (ItemDoCarrinho item : produtos) {
+			if (item.getProduto().equals(produto)) {
+				result = item;
+				break;
+			}
+		}
+		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "Carrinho [id=" + id + ", produto=" + produtos.toString() + "]";
+		String produtosToStr = "";
+
+		for (ItemDoCarrinho item : produtos) {
+			produtosToStr += item.getProduto().toString() + "\n";
+		}
+
+		return "Carrinho id=" + id + "\nprodutos=" + produtosToStr;
 	}
 
 }

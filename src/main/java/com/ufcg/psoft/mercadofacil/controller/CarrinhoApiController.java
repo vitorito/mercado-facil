@@ -1,15 +1,5 @@
 package com.ufcg.psoft.mercadofacil.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
 import java.util.Optional;
 
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
@@ -21,6 +11,15 @@ import com.ufcg.psoft.mercadofacil.service.ProdutoService;
 import com.ufcg.psoft.mercadofacil.util.ErroCarrinho;
 import com.ufcg.psoft.mercadofacil.util.ErroCliente;
 import com.ufcg.psoft.mercadofacil.util.ErroProduto;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
@@ -36,16 +35,16 @@ public class CarrinhoApiController {
 	@Autowired
 	ProdutoService produtoService;
 
-	@RequestMapping(value = "/cliente/{idCliente}/carrinho", method = RequestMethod.PUT)
+	@RequestMapping(value = "/cliente/carrinho", method = RequestMethod.PUT)
 	public ResponseEntity<?> adicionaProdutoNoCarrinho(
-			@PathVariable("idCliente") long idCliente,
+			@RequestBody long idCliente,
 			@RequestBody long idProduto,
 			@RequestBody int numDeItens) {
 
 		Optional<Cliente> clienteOp = clienteService.getClienteById(idCliente);
 
 		if (!clienteOp.isPresent()) {
-			return ErroCliente.erroClienteNaoEnconrtrado(idCliente);
+			return ErroCliente.erroClienteNaoEncontrado(idCliente);
 		}
 		
 		Optional<Produto> produtoOp = produtoService.getProdutoById(idProduto);
@@ -68,16 +67,16 @@ public class CarrinhoApiController {
 		return new ResponseEntity<Carrinho>(carrinho, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/cliente/{idCliente}/carrinho", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/cliente/carrinho", method = RequestMethod.DELETE)
 	public ResponseEntity<?> removeProdutosDoCarrinho(
-			@PathVariable("idCliente") long idCliente,
+			@RequestBody long idCliente,
 			@RequestBody long idProduto,
 			@RequestBody int numDeItens) {
 
 		Optional<Cliente> clienteOp = clienteService.getClienteById(idCliente);
 
 		if (!clienteOp.isPresent()) {
-			return ErroCliente.erroClienteNaoEnconrtrado(idCliente);
+			return ErroCliente.erroClienteNaoEncontrado(idCliente);
 		}
 		
 		Optional<Produto> produtoOp = produtoService.getProdutoById(idProduto);

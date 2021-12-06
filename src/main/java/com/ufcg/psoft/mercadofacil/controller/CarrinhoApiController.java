@@ -1,9 +1,11 @@
 package com.ufcg.psoft.mercadofacil.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
+import com.ufcg.psoft.mercadofacil.model.ItemDoCarrinho;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
 import com.ufcg.psoft.mercadofacil.service.ClienteService;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,6 +37,27 @@ public class CarrinhoApiController {
 
 	@Autowired
 	ProdutoService produtoService;
+
+	@RequestMapping(value = "/cliente/carrinho", method = RequestMethod.GET)
+	public ResponseEntity<?> listaProdutosNoCarrinho(@RequestParam("id_cliente") long idCliente) {
+
+		Optional<Cliente> clienteOp = clienteService.getClienteById(idCliente);
+
+		if (!clienteOp.isPresent()) {
+			return ErroCliente.erroClienteNaoEncontrado(idCliente);
+		}
+
+		Long idCarrinho = clienteOp.get().getCpf();
+		Optional<Carrinho> carrinhoOp = carrinhoService.getCarrinhoById(idCarrinho);
+
+		if (!carrinhoOp.isPresent()) {
+			return ErroCarrinho.erroCarrinhoNaoEncontrado(idCliente);
+		}
+
+		List<ItemDoCarrinho> produtos = carrinhoOp.get().getProdutos();
+
+		return new  ResponseEntity<List<ItemDoCarrinho>>(produtos, HttpStatus.OK);
+	}
 
 	@RequestMapping(value = "/cliente/carrinho", method = RequestMethod.PUT)
 	public ResponseEntity<?> adicionaProdutoNoCarrinho(

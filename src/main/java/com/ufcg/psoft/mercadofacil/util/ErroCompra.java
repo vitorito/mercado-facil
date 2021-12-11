@@ -14,6 +14,8 @@ public class ErroCompra {
 
 	static final String PRODUTOS_INDISPONIVEIS = "Os seguintes produtos estão indisponiveis: %s";
 
+	static final String CLIENTE_NAO_POSSUI_COMPRA = "O cliente %s não possui a compra de id %s";
+
 	public static ResponseEntity<CustomErrorType> erroCompraEstoqueInsuficiente(
 			List<ItemInsuficienteNoEstoque> itens) {
 
@@ -38,7 +40,12 @@ public class ErroCompra {
 		}
 
 		return new ResponseEntity<CustomErrorType>(
-			new CustomErrorType(String.format(ErroCompra.PRODUTOS_INDISPONIVEIS, indisponiveis)),
-			HttpStatus.CONFLICT);
+				new CustomErrorType(String.format(ErroCompra.PRODUTOS_INDISPONIVEIS, indisponiveis)),
+				HttpStatus.CONFLICT);
+	}
+
+	public static ResponseEntity<?> erroClienteNaoPossuiCompra(long idCliente, long idCompra) {
+		return new ResponseEntity<CustomErrorType>(new CustomErrorType(String.format(
+				ErroCompra.CLIENTE_NAO_POSSUI_COMPRA, idCliente, idCompra)), HttpStatus.CONFLICT);
 	}
 }

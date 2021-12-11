@@ -17,6 +17,8 @@ public class Lote {
     private Produto produto;
     private int numeroDeItens;
 
+    public Lote() {}
+    
     public Lote(Produto produto, int numeroDeItens) {
         this.produto = produto;
         this.numeroDeItens = numeroDeItens;

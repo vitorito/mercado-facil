@@ -8,15 +8,17 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-
 @Entity
 public class Carrinho {
 
 	@Id
 	private Long id;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ItemDoCarrinho> produtos;
+
+	public Carrinho() {
+	}
 
 	public Carrinho(Long id) {
 		this.id = id;

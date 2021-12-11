@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
+import com.ufcg.psoft.mercadofacil.model.ItemDoCarrinho;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.repository.CarrinhoRepository;
 
@@ -39,22 +40,24 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 	@Override
 	public void adicionaProdutos(Carrinho carrinho, Produto produto, int numDeItens) {
 		carrinho.adicionaProdutos(produto, numDeItens);
+		salvaCarrinho(carrinho);
 	}
 
 	@Override
 	public void removeProdutos(Carrinho carrinho, Produto produto, int numDeItens) {
 		carrinho.removeProdutos(produto, numDeItens);
+		salvaCarrinho(carrinho);
 	}
 
 	@Override
 	public void removeTodosProdutos(Carrinho carrinho) {
 		carrinho.removeTodosProdutos();
+		salvaCarrinho(carrinho);
 	}
 
 	@Override
-	public List<Produto> listaProdutos(Carrinho carrinho) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<ItemDoCarrinho> listaProdutos(Carrinho carrinho) {
+		return carrinho.getProdutos();
 	}
 
 	@Override

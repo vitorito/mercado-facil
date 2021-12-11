@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
+import com.ufcg.psoft.mercadofacil.model.ItemDoCarrinho;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 
 public interface CarrinhoService {
@@ -22,7 +23,7 @@ public interface CarrinhoService {
 	
 	public void removeTodosProdutos(Carrinho carrinho);
 	
-	public List<Produto> listaProdutos(Carrinho carrinho);
+	public List<ItemDoCarrinho> listaProdutos(Carrinho carrinho);
 
 	public boolean containsProduto(Carrinho carrinho, Produto produto);
 

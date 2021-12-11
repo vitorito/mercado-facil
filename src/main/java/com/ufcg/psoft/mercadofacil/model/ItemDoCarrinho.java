@@ -20,6 +20,8 @@ public class ItemDoCarrinho {
 	@Column(name = "quantidade")
 	private int numDeItens;
 
+	public ItemDoCarrinho() {}
+	
 	public ItemDoCarrinho(Produto produto, int numDeItens) {
 		this.produto = produto;
 		this.numDeItens = numDeItens;

@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,10 +24,12 @@ public class Compra {
 	@ManyToOne
 	Cliente cliente;
 
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ItemDoCarrinho> produtos;
 
 	private String data;
+
+	public Compra() {}
 
 	public Compra(Cliente cliente, List<ItemDoCarrinho> produtos) {
 		this.cliente = cliente;

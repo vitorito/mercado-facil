@@ -15,7 +15,7 @@ public class CompraServiceImpl implements CompraService {
 	CompraRepository compraRepository;
 
 	@Override
-	public Compra finalizaCompra(Cliente cliente, Carrinho carrinho) {
+	public Compra criaCompra(Cliente cliente, Carrinho carrinho) {
 		return new Compra(cliente, carrinho.getProdutos());
 	}
 

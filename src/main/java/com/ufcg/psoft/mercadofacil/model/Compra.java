@@ -29,7 +29,8 @@ public class Compra {
 
 	private String data;
 
-	public Compra() {}
+	public Compra() {
+	}
 
 	public Compra(Cliente cliente, List<ItemDoCarrinho> produtos) {
 		this.cliente = cliente;

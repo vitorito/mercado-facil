@@ -1,5 +1,7 @@
 package com.ufcg.psoft.mercadofacil.service;
 
+import java.util.List;
+
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Compra;
@@ -22,6 +24,11 @@ public class CompraServiceImpl implements CompraService {
 	@Override
 	public void salvaCompra(Compra compra) {
 		compraRepository.save(compra);
+	}
+
+	@Override
+	public List<Compra> listaCompras(Cliente cliente) {
+		return compraRepository.findByCliente(cliente);
 	}
 	
 }

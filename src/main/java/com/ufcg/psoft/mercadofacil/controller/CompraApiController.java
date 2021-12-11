@@ -86,5 +86,17 @@ public class CompraApiController {
 		return new ResponseEntity<Compra>(compra, HttpStatus.OK);
 	}
 
-	
+	@RequestMapping(value = "/cliente/{id}/compras", method = RequestMethod.GET)
+	public ResponseEntity<?> listaCompras(@PathVariable("id") long idCliente) {
+		Optional<Cliente> clienteOp = clienteService.getClienteById(idCliente);
+
+		if (!clienteOp.isPresent()) {
+			return ErroCliente.erroClienteNaoEncontrado(idCliente);
+		}
+
+		List<Compra> compras = compraService.listaCompras(clienteOp.get());
+
+		return new ResponseEntity<List<Compra>>(compras, HttpStatus.OK);
+	}
+
 }

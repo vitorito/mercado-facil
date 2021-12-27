@@ -1,7 +1,6 @@
 package com.ufcg.psoft.mercadofacil.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -103,12 +102,7 @@ public class LoteServiceImpl implements LoteService {
 	 * @param lotes Lista de lotes a ser ordenada.
 	 */
 	private void ordenaLotes(List<Lote> lotes) {
-		Collections.sort(lotes, new Comparator<Lote>() {
-			@Override
-			public int compare(Lote lote1, Lote lote2) {
-				return lote1.getNumeroDeItens() - lote2.getNumeroDeItens();
-			}
-		});
+		lotes.sort(Comparator.comparing(Lote::getNumeroDeItens));
 	}
 
 }

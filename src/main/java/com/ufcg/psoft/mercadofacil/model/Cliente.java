@@ -20,7 +20,7 @@ public class Cliente {
 
 	private String endereco;
 
-	private Cliente() {}
+	public Cliente() {}
 
 	public Cliente(Long cpf, String nome, Integer idade, String endereco) {
 		this.CPF = cpf;

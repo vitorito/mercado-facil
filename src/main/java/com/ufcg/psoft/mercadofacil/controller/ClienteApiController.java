@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
+import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
+import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
 import com.ufcg.psoft.mercadofacil.service.ClienteService;
+import com.ufcg.psoft.mercadofacil.util.ErroCarrinho;
 import com.ufcg.psoft.mercadofacil.util.ErroCliente;
 
 @RestController
@@ -26,6 +29,9 @@ public class ClienteApiController {
 
 	@Autowired
 	ClienteService clienteService;
+	
+	@Autowired
+	CarrinhoService carrinhoService;
 	
 	@RequestMapping(value = "/clientes", method = RequestMethod.GET)
 	public ResponseEntity<?> listarClientes() {
@@ -50,6 +56,9 @@ public class ClienteApiController {
 
 		Cliente cliente = clienteService.criaCliente(clienteDTO);
 		clienteService.salvarClienteCadastrado(cliente);
+		
+		Carrinho carrinho = carrinhoService.criaCarrinho(clienteDTO.getCPF());
+		carrinhoService.salvaCarrinho(carrinho);
 
 		return new ResponseEntity<Cliente>(cliente, HttpStatus.CREATED);
 	}
@@ -60,7 +69,7 @@ public class ClienteApiController {
 		Optional<Cliente> clienteOp = clienteService.getClienteById(id);
 	
 		if (!clienteOp.isPresent()) {
-			return ErroCliente.erroClienteNaoEnconrtrado(id);
+			return ErroCliente.erroClienteNaoEncontrado(id);
 		}
 		
 		return new ResponseEntity<Cliente>(clienteOp.get(), HttpStatus.OK);
@@ -72,7 +81,7 @@ public class ClienteApiController {
 		Optional<Cliente> clienteOp = clienteService.getClienteById(id);
 		
 		if (!clienteOp.isPresent()) {
-			return ErroCliente.erroClienteNaoEnconrtrado(id);
+			return ErroCliente.erroClienteNaoEncontrado(id);
 		}
 		
 		Cliente cliente = clienteOp.get();
@@ -89,10 +98,18 @@ public class ClienteApiController {
 		Optional<Cliente> clienteOp = clienteService.getClienteById(id);
 		
 		if (!clienteOp.isPresent()) {
-			return ErroCliente.erroClienteNaoEnconrtrado(id);
+			return ErroCliente.erroClienteNaoEncontrado(id);
 		}
-				
-		clienteService.removerClienteCadastrado(clienteOp.get());
+		
+		Cliente cliente = clienteOp.get();
+		Optional<Carrinho> carrinhoOp = carrinhoService.getCarrinhoById(cliente.getCpf());
+
+		if (!carrinhoOp.isPresent()) {
+			return ErroCarrinho.erroCarrinhoNaoEncontrado(id);
+		}
+
+		clienteService.removerClienteCadastrado(cliente);
+		carrinhoService.removeCarrinho(carrinhoOp.get());
 
 		return new ResponseEntity<Cliente>(HttpStatus.OK);
 	}

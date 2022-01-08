@@ -1,116 +1,63 @@
 package com.ufcg.psoft.mercadofacil.controller;
 
 import java.util.List;
-import java.util.Optional;
+
+import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
+import com.ufcg.psoft.mercadofacil.model.Cliente;
+import com.ufcg.psoft.mercadofacil.service.ClienteService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
-import com.ufcg.psoft.mercadofacil.model.Carrinho;
-import com.ufcg.psoft.mercadofacil.model.Cliente;
-import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
-import com.ufcg.psoft.mercadofacil.service.ClienteService;
-import com.ufcg.psoft.mercadofacil.util.ErroCarrinho;
-import com.ufcg.psoft.mercadofacil.util.ErroCliente;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/cliente")
 @CrossOrigin
 public class ClienteApiController {
 
 	@Autowired
 	ClienteService clienteService;
-	
-	@Autowired
-	CarrinhoService carrinhoService;
-	
-	@RequestMapping(value = "/clientes", method = RequestMethod.GET)
-	public ResponseEntity<?> listarClientes() {
-		
-		List<Cliente> clientes = clienteService.listarClientes();
-		
-		if (clientes.isEmpty()) {
-			return ErroCliente.erroSemClientesCadastrados();
-		}
-		
-		return new ResponseEntity<List<Cliente>>(clientes, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/cliente/", method = RequestMethod.POST)
-	public ResponseEntity<?> criarCliente(@RequestBody ClienteDTO clienteDTO, UriComponentsBuilder ucBuilder) {
 
-		Optional<Cliente> clienteOp = clienteService.getClienteByCPF(clienteDTO.getCPF());
-		
-		if (!clienteOp.isEmpty()) {
-			return ErroCliente.erroClienteJaCadastrado(clienteDTO);
-		}
-
-		Cliente cliente = clienteService.criaCliente(clienteDTO);
-		clienteService.salvarClienteCadastrado(cliente);
-		
-		Carrinho carrinho = carrinhoService.criaCarrinho(clienteDTO.getCPF());
-		carrinhoService.salvaCarrinho(carrinho);
-
-		return new ResponseEntity<Cliente>(cliente, HttpStatus.CREATED);
+	@GetMapping
+	@ResponseStatus(HttpStatus.OK)
+	public List<Cliente> listaClientes() {
+		return clienteService.listaClientes();
 	}
 
-	@RequestMapping(value = "/cliente/{id}", method = RequestMethod.GET)
-	public ResponseEntity<?> consultarCliente(@PathVariable("id") long id) {
-
-		Optional<Cliente> clienteOp = clienteService.getClienteById(id);
-	
-		if (!clienteOp.isPresent()) {
-			return ErroCliente.erroClienteNaoEncontrado(id);
-		}
-		
-		return new ResponseEntity<Cliente>(clienteOp.get(), HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/cliente/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<?> atualizarCliente(@PathVariable("id") long id, @RequestBody ClienteDTO clienteDTO) {
-
-		Optional<Cliente> clienteOp = clienteService.getClienteById(id);
-		
-		if (!clienteOp.isPresent()) {
-			return ErroCliente.erroClienteNaoEncontrado(id);
-		}
-		
-		Cliente cliente = clienteOp.get();
-		
-		clienteService.atualizaCliente(clienteDTO, cliente);
-		clienteService.salvarClienteCadastrado(cliente);
-		
-		return new ResponseEntity<Cliente>(cliente, HttpStatus.OK);
+	@PostMapping("/{id}")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Cliente cadastraCliente(@RequestBody ClienteDTO clienteDTO) {
+		return clienteService.cadastraCliente(clienteDTO);
 	}
 
-	@RequestMapping(value = "/cliente/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> removerCliente(@PathVariable("id") long id) {
-
-		Optional<Cliente> clienteOp = clienteService.getClienteById(id);
-		
-		if (!clienteOp.isPresent()) {
-			return ErroCliente.erroClienteNaoEncontrado(id);
-		}
-		
-		Cliente cliente = clienteOp.get();
-		Optional<Carrinho> carrinhoOp = carrinhoService.getCarrinhoById(cliente.getCpf());
-
-		if (!carrinhoOp.isPresent()) {
-			return ErroCarrinho.erroCarrinhoNaoEncontrado(id);
-		}
-
-		clienteService.removerClienteCadastrado(cliente);
-		carrinhoService.removeCarrinho(carrinhoOp.get());
-
-		return new ResponseEntity<Cliente>(HttpStatus.OK);
+	@GetMapping("/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	public Cliente consultaCliente(@PathVariable("id") long id) {
+		return clienteService.getClienteById(id);
 	}
+
+	@PatchMapping("/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	public Cliente atualizaCliente(
+			@PathVariable("id") long id,
+			@RequestBody ClienteDTO clienteDTO) {
+		clienteService.assertExisteClienteById(id);
+		return clienteService.atualizaCliente(clienteDTO);
+	}
+
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void removeCliente(@PathVariable("id") long id) {
+		clienteService.removeCliente(id);
+	}
+
 }

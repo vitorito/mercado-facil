@@ -8,10 +8,10 @@ insert into produto (ID, NOME, CODIGO_BARRA, FABRICANTE, IS_DISPONIVEL, CATEGORI
 values(10003,'Sabao em Po', '87654323-B', 'OMO', FALSE, 'Limpeza', 12);
 
 insert into produto (ID, NOME, CODIGO_BARRA, FABRICANTE, IS_DISPONIVEL, CATEGORIA, PRECO)
-values(10004,'Agua Sanitaria', '87654324-C', 'Dragao', FALSE, 'limpesa', 3);
+values(10004,'Agua Sanitaria', '87654324-C', 'Dragao', FALSE, 'Limpeza', 3);
 
 insert into produto (ID, NOME, CODIGO_BARRA, FABRICANTE, IS_DISPONIVEL, CATEGORIA, PRECO)
-values(10005,'Creme Dental', '87654325-C', 'Colgate', FALSE, 'HIGIENE', 2.5);
+values(10005,'Creme Dental', '87654325-C', 'Colgate', FALSE, 'Higiene', 2.5);
 
 insert into lote (ID, PRODUTO_ID, NUMERO_DE_ITENS)
 values(1, 10005, 5);

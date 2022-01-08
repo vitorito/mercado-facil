@@ -1,77 +1,133 @@
 package com.ufcg.psoft.mercadofacil.service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
+
+import com.ufcg.psoft.mercadofacil.DTO.ProdutoDTO;
+import com.ufcg.psoft.mercadofacil.exception.ErroProduto;
+import com.ufcg.psoft.mercadofacil.model.Produto;
+import com.ufcg.psoft.mercadofacil.repository.ProdutoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.ufcg.psoft.mercadofacil.DTO.ProdutoDTO;
-import com.ufcg.psoft.mercadofacil.model.ItemDoCarrinho;
-import com.ufcg.psoft.mercadofacil.model.Produto;
-import com.ufcg.psoft.mercadofacil.repository.ProdutoRepository;
 
 @Service
 public class ProdutoServiceImpl implements ProdutoService {
 
 	@Autowired
 	private ProdutoRepository produtoRepository;
-	
-	public Optional<Produto> getProdutoById(long id) {
-		return produtoRepository.findById(id);
-	}
-	
-	public List<Produto> getProdutoByCodigoBarra(String codigo) {
-		return produtoRepository.findByCodigoBarra(codigo);
-	}
-	
-	public void removerProdutoCadastrado(Produto produto) {
-		produtoRepository.delete(produto);
+
+	@Override
+	public Produto getProdutoById(Long id) {
+		return produtoRepository.findById(id).orElseThrow(
+				() -> ErroProduto.erroProdutoNaoEncontradoId());
 	}
 
-	public void salvarProdutoCadastrado(Produto produto) {
-		produtoRepository.save(produto);		
+	@Override
+	public Produto getProdutoByCodigoBarra(String codigo) {
+		return produtoRepository.findByCodigoBarra(codigo).orElseThrow(
+				() -> ErroProduto.erroProdutoNaoEncontradoCodigo());
 	}
 
-	public List<Produto> listarProdutos() {
-		return produtoRepository.findAll();
-	}
+	@Override
+	public Produto cadastraProduto(ProdutoDTO produtoDTO) {
+		assertProdutoNaoCadastrado(produtoDTO.getCodigoBarra());
 
-	public Produto criaProduto(ProdutoDTO produtoDTO) {
-		Produto produto = new Produto(produtoDTO.getNome(), produtoDTO.getFabricante(), produtoDTO.getCodigoBarra(),
-				produtoDTO.getPreco(), produtoDTO.getCategoria());
-		
-		produto.tornaDisponivel();
+		Produto produto = criaProduto(produtoDTO);
+		salvaProduto(produto);
+
 		return produto;
 	}
 
 	@Override
-	public List<Produto> checaDisponibilidade(List<ItemDoCarrinho> produtos) {
-		List<Produto> indisponiveis = new ArrayList<>();
-		
-		for (ItemDoCarrinho item : produtos) {
-			Produto produto = item.getProduto();
-			if (!produto.isDisponivel()) {
-				indisponiveis.add(produto);
-			}
-		}
-
-		return indisponiveis;
+	public void removeProduto(Long id) {
+		Produto produto = getProdutoById(id);
+		produtoRepository.delete(produto);
 	}
 
-	public Produto atualizaProduto(ProdutoDTO produtoDTO, Produto produto) {
-		produto.setNome(produtoDTO.getNome());
-		produto.setPreco(produtoDTO.getPreco());
-		produto.setCodigoBarra(produtoDTO.getCodigoBarra());
-		produto.mudaFabricante(produtoDTO.getFabricante());
-		produto.mudaCategoria(produtoDTO.getCategoria());
-		
+	@Override
+	public Produto atualizaProduto(ProdutoDTO produtoDTO) {
+		Produto produto = getProdutoByCodigoBarra(produtoDTO.getCodigoBarra());
+		atualizaProduto(produtoDTO, produto);
+		salvaProduto(produto);
+
 		return produto;
+	}
+
+	@Override
+	public List<Produto> listaProdutos() {
+		List<Produto> produtos = produtoRepository.findAll();
+
+		if (produtos.isEmpty()) {
+			throw ErroProduto.erroSemProdutosCadastrados();
+		}
+
+		return produtos;
+	}
+
+	@Override
+	public List<Produto> checaDisponibilidade(List<Produto> produtos) {
+		List<Produto> indisponiveis = produtos.stream()
+				.filter(p -> !p.isDisponivel())
+				.collect(Collectors.toList());
+		return indisponiveis;
 	}
 
 	@Override
 	public boolean isDisponivel(Produto produto) {
 		return produto.isDisponivel();
 	}
+
+	@Override
+	public void tornaDisponivel(Long idProduto) {
+		tornaDisponivel(getProdutoById(idProduto));
+	}
+
+	@Override
+	public void tornaDisponivel(Produto produto) {
+		produto.tornaDisponivel();
+		salvaProduto(produto);
+	}
+
+	@Override
+	public void tornaIndisponivel(Long idProduto) {
+		tornaIndisponivel(getProdutoById(idProduto));
+	}
+
+	@Override
+	public void tornaIndisponivel(Produto produto) {
+		produto.tornaIndisponivel();
+		salvaProduto(produto);
+	}
+
+	private Produto criaProduto(ProdutoDTO produtoDTO) {
+		Produto produto = new Produto(
+				produtoDTO.getNome(),
+				produtoDTO.getFabricante(),
+				produtoDTO.getCodigoBarra(),
+				produtoDTO.getPreco(),
+				produtoDTO.getCategoria());
+
+		produto.tornaDisponivel();
+		return produto;
+	}
+
+	private void atualizaProduto(ProdutoDTO produtoDTO, Produto produto) {
+		produto.setNome(produtoDTO.getNome());
+		produto.setPreco(produtoDTO.getPreco());
+		produto.setCodigoBarra(produtoDTO.getCodigoBarra());
+		produto.mudaFabricante(produtoDTO.getFabricante());
+		produto.mudaCategoria(produtoDTO.getCategoria());
+	}
+
+	private void salvaProduto(Produto produto) {
+		produtoRepository.save(produto);
+	}
+
+	private void assertProdutoNaoCadastrado(String codigoBarra) {
+		if (!produtoRepository.existsByCodigoBarra(codigoBarra)) {
+			throw ErroProduto.erroProdutoJaCadastrado();
+		}
+	}
+
 }

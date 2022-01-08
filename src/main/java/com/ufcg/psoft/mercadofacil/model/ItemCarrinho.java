@@ -1,5 +1,7 @@
 package com.ufcg.psoft.mercadofacil.model;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,11 +10,11 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 @Entity
-public class ItemDoCarrinho {
+public class ItemCarrinho {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 
 	@OneToOne
 	private Produto produto;
@@ -20,11 +22,17 @@ public class ItemDoCarrinho {
 	@Column(name = "quantidade")
 	private int numDeItens;
 
-	public ItemDoCarrinho() {}
+	public ItemCarrinho() {
+	}
 	
-	public ItemDoCarrinho(Produto produto, int numDeItens) {
+	public ItemCarrinho(Produto produto, int numDeItens) {
 		this.produto = produto;
 		this.numDeItens = numDeItens;
+	}
+
+	public BigDecimal getSubtotal() {
+		BigDecimal numItens = new BigDecimal(getNumDeItens());
+		return getProduto().getPreco().multiply(numItens);
 	}
 
 	public Produto getProduto() {

@@ -7,8 +7,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ufcg.psoft.mercadofacil.model.ItemDoCarrinho;
-import com.ufcg.psoft.mercadofacil.model.ItemInsuficienteNoEstoque;
+import com.ufcg.psoft.mercadofacil.exception.ErroLote;
+import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
+import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Lote;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.repository.LoteRepository;
@@ -19,22 +20,32 @@ public class LoteServiceImpl implements LoteService {
 	@Autowired
 	private LoteRepository loteRepository;
 
-	public List<Lote> listarLotes() {
-		return loteRepository.findAll();
-	}
+	@Autowired
+	ProdutoService produtoService;
 
-	public void salvarLote(Lote lote) {
-		loteRepository.save(lote);
-	}
+	@Override
+	public List<Lote> listaLotes() {
+		List<Lote> lotes = loteRepository.findAll();
 
-	public Lote criaLote(int numItens, Produto produto) {
-		Lote lote = new Lote(produto, numItens);
-		return lote;
+		if (lotes.isEmpty()) {
+			throw ErroLote.erroSemLotesCadastrados();
+		}
+
+		return lotes;
 	}
 
 	@Override
-	public void removeLote(Lote lote) {
-		loteRepository.delete(lote);
+	public Lote cadastraLote(Long idProduto, int numItens) {
+		if (numItens <= 0) {
+			throw new IllegalArgumentException("O número de itens não pode ser menor que 1.");
+		}
+
+		Produto produto = produtoService.getProdutoById(idProduto);
+		Lote lote = new Lote(produto, numItens);
+		salvaLote(lote);
+		produtoService.tornaDisponivel(idProduto);
+
+		return lote;
 	}
 
 	@Override
@@ -45,37 +56,48 @@ public class LoteServiceImpl implements LoteService {
 	}
 
 	@Override
-	public void retiraItensDoEstoque(List<ItemDoCarrinho> produtos) {
-		for (ItemDoCarrinho item : produtos) {
-			List<Lote> lotes = getLotesByProduto(item.getProduto());
+	public void retiraItensDoEstoque(List<ItemCarrinho> produtos) {
+		produtos.forEach(item -> {
+			Produto produto = item.getProduto();
+			List<Lote> lotes = getLotesByProduto(produto);
 
 			int novaQntdDeProdutos = item.getNumDeItens();
 			for (Lote lote : lotes) {
 				novaQntdDeProdutos = lote.getNumeroDeItens() - Math.abs(novaQntdDeProdutos);
 				if (novaQntdDeProdutos > 0) {
 					lote.setNumeroDeItens(novaQntdDeProdutos);
-					salvarLote(lote);
+					salvaLote(lote);
 					break;
 				}
 				removeLote(lote);
 			}
-		}
+			if (novaQntdDeProdutos <= 0)
+				produtoService.tornaIndisponivel(produto);
+		});
 	}
 
 	@Override
-	public List<ItemInsuficienteNoEstoque> temNoEstoque(List<ItemDoCarrinho> produtos) {
-		List<ItemInsuficienteNoEstoque> naoTem = new ArrayList<>();
+	public List<ItemSemEstoque> temEmEstoque(List<ItemCarrinho> produtos) {
+		List<ItemSemEstoque> naoTem = new ArrayList<>();
 
-		for (ItemDoCarrinho item : produtos) {
+		for (ItemCarrinho item : produtos) {
 			Produto produto = item.getProduto();
 			int emEstoque = getTotalDeProdutosNoEstoque(produto);
 			int retirar = item.getNumDeItens();
 			if ((emEstoque - retirar) < 0) {
-				naoTem.add(new ItemInsuficienteNoEstoque(produto, retirar, emEstoque));
+				naoTem.add(new ItemSemEstoque(produto.getId(), retirar, emEstoque));
 			}
 		}
 
 		return naoTem;
+	}
+
+	private void salvaLote(Lote lote) {
+		loteRepository.save(lote);
+	}
+
+	private void removeLote(Lote lote) {
+		loteRepository.delete(lote);
 	}
 
 	/**
@@ -86,12 +108,9 @@ public class LoteServiceImpl implements LoteService {
 	 * @return O total desse produto no estoque.
 	 */
 	private int getTotalDeProdutosNoEstoque(Produto produto) {
-		int total = 0;
-		List<Lote> lotes = getLotesByProduto(produto);
-
-		for (Lote lote : lotes) {
-			total += lote.getNumeroDeItens();
-		}
+		int total = getLotesByProduto(produto).stream()
+				.mapToInt(Lote::getNumeroDeItens)
+				.sum();
 
 		return total;
 	}

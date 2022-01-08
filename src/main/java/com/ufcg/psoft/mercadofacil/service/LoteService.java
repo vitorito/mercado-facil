@@ -2,24 +2,21 @@ package com.ufcg.psoft.mercadofacil.service;
 
 import java.util.List;
 
-import com.ufcg.psoft.mercadofacil.model.ItemDoCarrinho;
-import com.ufcg.psoft.mercadofacil.model.ItemInsuficienteNoEstoque;
+import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
+import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Lote;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 
 public interface LoteService {
 
-	public List<Lote> listarLotes();
+	public List<Lote> listaLotes();
 
-	public void salvarLote(Lote lote);
-
-	public Lote criaLote(int numItens, Produto produto);
-
-	public void removeLote(Lote lote);
+	public Lote cadastraLote(Long idProduto, int numItens);
 
 	public List<Lote> getLotesByProduto(Produto produto);
 
-	public void retiraItensDoEstoque(List<ItemDoCarrinho> produtos);
+	public void retiraItensDoEstoque(List<ItemCarrinho> produtos);
 
-	public List<ItemInsuficienteNoEstoque> temNoEstoque(List<ItemDoCarrinho> produtos);
+	public List<ItemSemEstoque> temEmEstoque(List<ItemCarrinho> produtos);
+
 }

@@ -6,54 +6,30 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public class CustomErrorResponse {
 
+	@NonNull
 	private String message;
-
-	private int status;
-
-	private String path;
-
-	private LocalDateTime timestamp;
-
+	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private List<?> details;
 
+	@NonNull
+	private Integer status;
 
-	public CustomErrorResponse(String message, int status, String path) {
-		this.message = message;
-		this.status = status;
-		this.path = path;
-		this.timestamp = LocalDateTime.now(ZoneId.of("+00:00"));
-	}
+	@NonNull
+	private String path;
+	
+	private LocalDateTime timestamp = LocalDateTime.now(ZoneId.of("+00:00"));
 
-	public CustomErrorResponse(String message, int status, String path, List<?> details) {
+	public CustomErrorResponse(String message, Integer status, String path, List<?> details) {
 		this(message, status, path);
-		this.details = details;
-	}
-
-
-	public String getMessage() {
-		return message;
-	}
-
-	public int getStatus() {
-		return status;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public LocalDateTime getTimestamp() {
-		return timestamp;
-	}
-
-	public List<?> getDetails() {
-		return details;
-	}
-
-	public void setDetails(List<?> details) {
 		this.details = details;
 	}
 

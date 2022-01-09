@@ -20,7 +20,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 				e.getStatus().value(),
 				request.getRequestURI(),
 				e.getDetails());
-		
+
 		return new ResponseEntity<>(erro, e.getStatus());
 	}
 
@@ -40,10 +40,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<CustomErrorResponse> handleAnyException(
 			Exception e,
 			HttpServletRequest request) {
-		CustomErrorResponse erro = new CustomErrorResponse(e.getMessage(),
+		CustomErrorResponse erro = new CustomErrorResponse(
+				e.getMessage(),
 				HttpStatus.INTERNAL_SERVER_ERROR.value(),
 				request.getRequestURI());
-		System.out.println(e.getStackTrace());
 
 		return new ResponseEntity<>(erro, HttpStatus.INTERNAL_SERVER_ERROR);
 

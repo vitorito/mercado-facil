@@ -1,8 +1,11 @@
 package com.ufcg.psoft.mercadofacil.DTO;
 
+import lombok.Getter;
+
+@Getter
 public class ClienteDTO {
 
-	private Long cpf;
+	private Long CPF;
 	
 	private String nome;
 
@@ -10,19 +13,4 @@ public class ClienteDTO {
 
 	private String endereco;
 
-	public String getNome() {
-		return nome;
-	}
-	
-	public Long getCPF() {
-		return cpf;
-	}
-
-	public Integer getIdade() {
-		return idade;
-	}
-
-	public String getEndereco() {
-		return endereco;
-	}
 }

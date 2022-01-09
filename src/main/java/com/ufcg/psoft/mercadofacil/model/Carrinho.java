@@ -14,23 +14,26 @@ import javax.persistence.OneToMany;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ufcg.psoft.mercadofacil.exception.ErroCarrinho;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+
 @Entity
+@ToString
+@NoArgsConstructor
+@RequiredArgsConstructor
 public class Carrinho {
 
 	@Id
+	@Getter
+	@NonNull
 	@JsonIgnore
 	private Long id;
 
 	@OneToMany(cascade = CascadeType.ALL)
-	private List<ItemCarrinho> produtos;
-
-	public Carrinho() {
-	}
-
-	public Carrinho(Long id) {
-		this.id = id;
-		this.produtos = new ArrayList<>();
-	}
+	private List<ItemCarrinho> produtos = new ArrayList<>();
 
 	public List<ItemCarrinho> getItens() {
 		return new ArrayList<>(produtos);
@@ -45,25 +48,25 @@ public class Carrinho {
 		return produtosList;
 	}
 
-	public void adicionaProdutos(Produto produto, int numDeItens) {
+	public void adicionaProdutos(Produto produto, int quantidade) {
 		Optional<ItemCarrinho> itemOptional = getItemDoCarrinho(produto);
 
 		if (itemOptional.isPresent()) {
 			ItemCarrinho item = itemOptional.get();
-			int novaQuantidade = item.getNumDeItens() + numDeItens;
-			item.setNumDeItens(novaQuantidade);
+			int novaQuantidade = item.getQuantidade() + quantidade;
+			item.setQuantidade(novaQuantidade);
 			return;
 		}
 
-		produtos.add(new ItemCarrinho(produto, numDeItens));
+		produtos.add(new ItemCarrinho(produto, quantidade));
 	}
 
-	public void removeProduto(Produto produto, int numDeItens) {
+	public void removeProduto(Produto produto, int quantidade) {
 		ItemCarrinho itemDoCarrinho = assertTemProduto(produto);
-		int novaQuantidade = itemDoCarrinho.getNumDeItens() - numDeItens;
+		int novaQuantidade = itemDoCarrinho.getQuantidade() - quantidade;
 
 		if (novaQuantidade > 0) {
-			itemDoCarrinho.setNumDeItens(novaQuantidade);
+			itemDoCarrinho.setQuantidade(novaQuantidade);
 			return;
 		}
 
@@ -74,14 +77,10 @@ public class Carrinho {
 		produtos.clear();
 	}
 
-	public Long getId() {
-		return id;
-	}
-
 	public BigDecimal getTotal() {
 		BigDecimal total = produtos.stream()
-			.map(ItemCarrinho::getSubtotal)
-			.reduce(BigDecimal.ZERO, BigDecimal::add);
+				.map(ItemCarrinho::getSubtotal)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
 		return total;
 	}
 
@@ -100,17 +99,6 @@ public class Carrinho {
 				.findAny();
 
 		return result;
-	}
-
-	@Override
-	public String toString() {
-		String produtosToStr = "";
-
-		for (ItemCarrinho item : produtos) {
-			produtosToStr += item.getProduto() + "\n";
-		}
-
-		return "Carrinho id=" + id + "\nprodutos=" + produtosToStr;
 	}
 
 }

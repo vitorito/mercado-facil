@@ -35,7 +35,7 @@ public class CompraServiceImpl implements CompraService {
 	@Override
 	public Compra finalizaCompra(Long idCliente) {
 		Cliente cliente = clienteService.getClienteById(idCliente);
-		Long idCarrinho = cliente.getCpf();
+		Long idCarrinho = cliente.getCPF();
 		List<ItemCarrinho> produtos = getItensDoCarrinho(idCarrinho);
 
 		assertIsDisponivel(idCarrinho);

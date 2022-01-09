@@ -105,8 +105,8 @@ public class ProdutoServiceImpl implements ProdutoService {
 				produtoDTO.getNome(),
 				produtoDTO.getFabricante(),
 				produtoDTO.getCodigoBarra(),
-				produtoDTO.getPreco(),
-				produtoDTO.getCategoria());
+				produtoDTO.getCategoria(),
+				produtoDTO.getPreco());
 
 		produto.tornaDisponivel();
 		return produto;
@@ -116,8 +116,8 @@ public class ProdutoServiceImpl implements ProdutoService {
 		produto.setNome(produtoDTO.getNome());
 		produto.setPreco(produtoDTO.getPreco());
 		produto.setCodigoBarra(produtoDTO.getCodigoBarra());
-		produto.mudaFabricante(produtoDTO.getFabricante());
-		produto.mudaCategoria(produtoDTO.getCategoria());
+		produto.setFabricante(produtoDTO.getFabricante());
+		produto.setCategoria(produtoDTO.getCategoria());
 	}
 
 	private void salvaProduto(Produto produto) {

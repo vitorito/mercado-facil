@@ -35,7 +35,7 @@ public class ClienteServiceImpl implements ClienteService {
 	public void removeCliente(Long id) {
 		Cliente cliente = getClienteById(id);
 		clienteRepository.delete(cliente);
-		carrinhoService.removeCarrinho(cliente.getCpf());
+		carrinhoService.removeCarrinho(cliente.getCPF());
 	}
 
 	@Override

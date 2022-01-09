@@ -1,9 +1,16 @@
 package com.ufcg.psoft.mercadofacil.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+
 /** 
 * Representa um item do qual houve um pedido de compra porém não
 * tinha a quantidade requerida no estoque.
 */
+@Getter
+@ToString
+@AllArgsConstructor
 public class ItemSemEstoque {
 	
 	Long idProduto;
@@ -17,30 +24,5 @@ public class ItemSemEstoque {
 	 * Quantidade de itens disponíveis no estoque.
 	 */
 	int disponivel; 
-
-	public ItemSemEstoque(Long idProduto, int requerido, int disponivel) {
-		this.idProduto = idProduto;
-		this.requerido = requerido;
-		this.disponivel = disponivel;
-	}
-
-	public Long getProduto() {
-		return idProduto;
-	}
-
-	public int getQntdRequerida() {
-		return requerido;
-	}
-
-	public int getQntdDisponivel() {
-		return disponivel;
-	}
-
-	@Override
-	public String toString() {
-		String result = idProduto + ", em estoque: " + disponivel + ", requerido: " + requerido;
-
-		return result;
-	}
 	
 }

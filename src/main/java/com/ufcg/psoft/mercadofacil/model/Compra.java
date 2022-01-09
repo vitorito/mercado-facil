@@ -14,49 +14,38 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-@Entity
-public class Compra {
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-	public static final String FORMATO_DATA = "dd/MM/yyyy HH:mm:ss";
+@Entity
+@Getter
+@NoArgsConstructor
+@RequiredArgsConstructor
+public class Compra {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@NonNull
 	@ManyToOne
 	Cliente cliente;
 
+	@NonNull
+	@Getter(AccessLevel.NONE)
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<ItemCarrinho> produtos;
 
-	private LocalDateTime data;
-
+	@NonNull
 	private BigDecimal total;
 
-	public Compra() {
-	}
-
-	public Compra(Cliente cliente, List<ItemCarrinho> produtos, BigDecimal total) {
-		this.cliente = cliente;
-		this.produtos = produtos;
-		this.total = total;
-		this.data = LocalDateTime.now(ZoneId.of("Z"));
-	}
-
-	public Cliente getCliente() {
-		return cliente;
-	}
+	private LocalDateTime data = LocalDateTime.now(ZoneId.of("Z"));
 
 	public List<ItemCarrinho> getProdutos() {
 		return new ArrayList<>(produtos);
-	}
-
-	public LocalDateTime getData() {
-		return this.data;
-	}
-
-	public BigDecimal getTotal() {
-		return total;
 	}
 
 }

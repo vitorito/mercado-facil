@@ -35,13 +35,13 @@ public class LoteServiceImpl implements LoteService {
 	}
 
 	@Override
-	public Lote cadastraLote(Long idProduto, int numItens) {
-		if (numItens <= 0) {
+	public Lote cadastraLote(Long idProduto, int quantidade) {
+		if (quantidade <= 0) {
 			throw new IllegalArgumentException("O número de itens não pode ser menor que 1.");
 		}
 
 		Produto produto = produtoService.getProdutoById(idProduto);
-		Lote lote = new Lote(produto, numItens);
+		Lote lote = new Lote(produto, quantidade);
 		salvaLote(lote);
 		produtoService.tornaDisponivel(idProduto);
 
@@ -61,11 +61,11 @@ public class LoteServiceImpl implements LoteService {
 			Produto produto = item.getProduto();
 			List<Lote> lotes = getLotesByProduto(produto);
 
-			int novaQntdDeProdutos = item.getNumDeItens();
+			int novaQntdDeProdutos = item.getQuantidade();
 			for (Lote lote : lotes) {
-				novaQntdDeProdutos = lote.getNumeroDeItens() - Math.abs(novaQntdDeProdutos);
+				novaQntdDeProdutos = lote.getQuantidade() - Math.abs(novaQntdDeProdutos);
 				if (novaQntdDeProdutos > 0) {
-					lote.setNumeroDeItens(novaQntdDeProdutos);
+					lote.setQuantidade(novaQntdDeProdutos);
 					salvaLote(lote);
 					break;
 				}
@@ -83,7 +83,7 @@ public class LoteServiceImpl implements LoteService {
 		for (ItemCarrinho item : produtos) {
 			Produto produto = item.getProduto();
 			int emEstoque = getTotalDeProdutosNoEstoque(produto);
-			int retirar = item.getNumDeItens();
+			int retirar = item.getQuantidade();
 			if ((emEstoque - retirar) < 0) {
 				naoTem.add(new ItemSemEstoque(produto.getId(), retirar, emEstoque));
 			}
@@ -109,7 +109,7 @@ public class LoteServiceImpl implements LoteService {
 	 */
 	private int getTotalDeProdutosNoEstoque(Produto produto) {
 		int total = getLotesByProduto(produto).stream()
-				.mapToInt(Lote::getNumeroDeItens)
+				.mapToInt(Lote::getQuantidade)
 				.sum();
 
 		return total;
@@ -121,7 +121,7 @@ public class LoteServiceImpl implements LoteService {
 	 * @param lotes Lista de lotes a ser ordenada.
 	 */
 	private void ordenaLotes(List<Lote> lotes) {
-		lotes.sort(Comparator.comparing(Lote::getNumeroDeItens));
+		lotes.sort(Comparator.comparing(Lote::getQuantidade));
 	}
 
 }

@@ -9,7 +9,7 @@ public interface ClienteService {
 
 	public Cliente getClienteById(Long id);
 	
-	public Cliente getClienteByCPF(Long cpf);
+	public Cliente getClienteByCpf(Long cpf);
 	
 	public void removeCliente(Long id);
 
@@ -21,6 +21,6 @@ public interface ClienteService {
 
 	public void assertExisteClienteById(Long id);
 
-	public void assertExisteClienteByCPF(Long cpf);
+	public void assertExisteClienteByCpf(Long cpf);
 
 }

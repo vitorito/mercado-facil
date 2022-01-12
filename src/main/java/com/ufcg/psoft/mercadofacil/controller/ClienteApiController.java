@@ -2,6 +2,8 @@ package com.ufcg.psoft.mercadofacil.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.service.ClienteService;
@@ -33,30 +35,30 @@ public class ClienteApiController {
 		return clienteService.listaClientes();
 	}
 
-	@PostMapping("/{id}")
+	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Cliente cadastraCliente(@RequestBody ClienteDTO clienteDTO) {
+	public Cliente cadastraCliente(@RequestBody @Valid ClienteDTO clienteDTO) {
 		return clienteService.cadastraCliente(clienteDTO);
 	}
 
 	@GetMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public Cliente consultaCliente(@PathVariable("id") long id) {
+	public Cliente consultaCliente(@PathVariable("id") Long id) {
 		return clienteService.getClienteById(id);
 	}
 
 	@PatchMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	public Cliente atualizaCliente(
-			@PathVariable("id") long id,
-			@RequestBody ClienteDTO clienteDTO) {
+			@PathVariable("id") Long id,
+			@RequestBody @Valid ClienteDTO clienteDTO) {
 		clienteService.assertExisteClienteById(id);
 		return clienteService.atualizaCliente(clienteDTO);
 	}
 
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void removeCliente(@PathVariable("id") long id) {
+	public void removeCliente(@PathVariable("id") Long id) {
 		clienteService.removeCliente(id);
 	}
 

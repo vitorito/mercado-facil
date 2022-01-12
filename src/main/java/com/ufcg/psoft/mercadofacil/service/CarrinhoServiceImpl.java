@@ -34,7 +34,7 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 
 	@Override
 	public Carrinho getCarrinhoByCliente(Long idCliente) {
-		Long idCarrinho = clienteService.getClienteById(idCliente).getCPF();
+		Long idCarrinho = clienteService.getClienteById(idCliente).getCpf();
 
 		return getCarrinhoById(idCarrinho);
 	}

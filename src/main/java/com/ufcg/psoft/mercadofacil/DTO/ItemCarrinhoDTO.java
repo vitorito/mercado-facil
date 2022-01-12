@@ -1,12 +1,19 @@
 package com.ufcg.psoft.mercadofacil.DTO;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+
 import lombok.Getter;
 
 @Getter
 public class ItemCarrinhoDTO {
 	
-	long idProduto;
+	@NotNull
+	@Positive
+	Long idProduto;
 
-	int numDeItens;
+	@NotNull
+	@Positive
+	Integer numDeItens;
 
 }

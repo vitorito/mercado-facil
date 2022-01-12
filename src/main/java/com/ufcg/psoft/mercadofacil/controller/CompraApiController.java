@@ -31,15 +31,15 @@ public class CompraApiController {
 
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
-	public List<Compra> listaCompras(@PathVariable("id") long idCliente) {
+	public List<Compra> listaCompras(@PathVariable("id") Long idCliente) {
 		return compraService.listaCompras(idCliente);
 	}
 
 	@GetMapping("/{idCompra}")
 	@ResponseStatus(HttpStatus.OK)
 	public Compra getCompra(
-			@PathVariable("id") long idCliente, 
-			@PathVariable("idCompra") long idCompra) {
+			@PathVariable("id") Long idCliente, 
+			@PathVariable("idCompra") Long idCompra) {
 		return compraService.getCompraById(idCliente, idCompra);
 	}
 

@@ -2,6 +2,8 @@ package com.ufcg.psoft.mercadofacil.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import com.ufcg.psoft.mercadofacil.DTO.ProdutoDTO;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.service.ProdutoService;
@@ -35,7 +37,7 @@ public class ProdutoApiController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Produto cadastraProduto(@RequestBody ProdutoDTO produtoDTO) {
+	public Produto cadastraProduto(@RequestBody @Valid ProdutoDTO produtoDTO) {
 		return produtoService.cadastraProduto(produtoDTO);
 	}
 
@@ -49,7 +51,7 @@ public class ProdutoApiController {
 	@ResponseStatus(HttpStatus.OK)
 	public Produto atualizaProduto(
 			@PathVariable("id") Long id,
-			@RequestBody ProdutoDTO produtoDTO) {
+			@RequestBody @Valid ProdutoDTO produtoDTO) {
 		return produtoService.atualizaProduto(produtoDTO);
 	}
 

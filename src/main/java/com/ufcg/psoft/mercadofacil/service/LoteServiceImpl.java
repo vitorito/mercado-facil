@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.ufcg.psoft.mercadofacil.exception.ErroLote;
 import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Lote;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.repository.LoteRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import static com.ufcg.psoft.mercadofacil.validation.FieldValidator.*;
 
 @Service
 public class LoteServiceImpl implements LoteService {
@@ -36,9 +38,7 @@ public class LoteServiceImpl implements LoteService {
 
 	@Override
 	public Lote cadastraLote(Long idProduto, int quantidade) {
-		if (quantidade <= 0) {
-			throw new IllegalArgumentException("O número de itens não pode ser menor que 1.");
-		}
+		positive(quantidade, "A quantidade de itens tem que ser maior que 0.");
 
 		Produto produto = produtoService.getProdutoById(idProduto);
 		Lote lote = new Lote(produto, quantidade);

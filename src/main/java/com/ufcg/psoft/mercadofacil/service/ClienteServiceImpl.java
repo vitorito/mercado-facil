@@ -26,8 +26,8 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public Cliente getClienteByCPF(Long cpf) {
-		return clienteRepository.findByCPF(cpf).orElseThrow(
+	public Cliente getClienteByCpf(Long cpf) {
+		return clienteRepository.findByCpf(cpf).orElseThrow(
 				() -> ErroCliente.erroClienteNaoEncontradoCPF());
 	}
 
@@ -35,7 +35,7 @@ public class ClienteServiceImpl implements ClienteService {
 	public void removeCliente(Long id) {
 		Cliente cliente = getClienteById(id);
 		clienteRepository.delete(cliente);
-		carrinhoService.removeCarrinho(cliente.getCPF());
+		carrinhoService.removeCarrinho(cliente.getCpf());
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public Cliente cadastraCliente(ClienteDTO clienteDTO) {
-		Long cpf = clienteDTO.getCPF();
+		Long cpf = clienteDTO.getCpf();
 		assertClienteNaoCadastrado(cpf);
 
 		Cliente cliente = criaCliente(clienteDTO);
@@ -63,7 +63,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public Cliente atualizaCliente(ClienteDTO clienteDTO) {
-		Cliente cliente = getClienteByCPF(clienteDTO.getCPF());
+		Cliente cliente = getClienteByCpf(clienteDTO.getCpf());
 		cliente.setIdade(clienteDTO.getIdade());
 		cliente.setEndereco(clienteDTO.getEndereco());
 		salvaCliente(cliente);
@@ -79,15 +79,15 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public void assertExisteClienteByCPF(Long cpf) {
-		if (!clienteRepository.existsByCPF(cpf)) {
+	public void assertExisteClienteByCpf(Long cpf) {
+		if (!clienteRepository.existsByCpf(cpf)) {
 			throw ErroCliente.erroClienteNaoEncontradoCPF();
 		}
 	}
 
 	private Cliente criaCliente(ClienteDTO clienteDTO) {
 		return new Cliente(
-				clienteDTO.getCPF(),
+				clienteDTO.getCpf(),
 				clienteDTO.getNome(),
 				clienteDTO.getIdade(),
 				clienteDTO.getEndereco());
@@ -98,7 +98,7 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	private void assertClienteNaoCadastrado(Long cpf) {
-		if (clienteRepository.existsByCPF(cpf)) {
+		if (clienteRepository.existsByCpf(cpf)) {
 			throw ErroCliente.erroClienteJaCadastrado();
 		}
 	}

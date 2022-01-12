@@ -27,7 +27,7 @@ public class Cliente {
 
 	@NonNull
 	@EqualsAndHashCode.Include
-	private Long CPF;
+	private Long cpf;
 
 	@NonNull
 	private String nome;

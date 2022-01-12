@@ -3,13 +3,11 @@ package com.ufcg.psoft.mercadofacil.exception;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 
 import org.springframework.http.HttpStatus;
 
-@SuppressWarnings("unused")
 public class ErroCompra {
 
 	public static final String ESTOQUE_INSUFICIENTE = "Produtos estão insuficientes no estoque.";
@@ -23,7 +21,12 @@ public class ErroCompra {
 	public static final String CLIENTE_NAO_POSSUI_NENHUMA_COMPRA = "Esse cliente não possui nenhuma compra.";
 
 	public static CustomErrorType erroEstoqueInsuficiente(List<ItemSemEstoque> itens) {
-		return new CustomErrorType(ESTOQUE_INSUFICIENTE, HttpStatus.CONFLICT, itens);
+		var details = CustomErrorResponseDetails.builder()
+				.titulo("Produtos que estão insuficientes.")
+				.itens(itens)
+				.build();
+
+		return new CustomErrorType(ESTOQUE_INSUFICIENTE, HttpStatus.CONFLICT, details);
 	}
 
 	public static CustomErrorType erroCrompraProdutosIndisponiveis(
@@ -31,8 +34,13 @@ public class ErroCompra {
 		List<Long> indisponiveisIds = produtosIndisponiveis.stream()
 				.map(Produto::getId)
 				.collect(Collectors.toList());
+				
+		var details = CustomErrorResponseDetails.builder()
+				.titulo("IDs dos produtos indisponíveis.")
+				.itens(indisponiveisIds)
+				.build();
 
-		return new CustomErrorType(PRODUTOS_INDISPONIVEIS, HttpStatus.CONFLICT, indisponiveisIds);
+		return new CustomErrorType(PRODUTOS_INDISPONIVEIS, HttpStatus.CONFLICT, details);
 	}
 
 	public static CustomErrorType erroCarrinhoVazio() {

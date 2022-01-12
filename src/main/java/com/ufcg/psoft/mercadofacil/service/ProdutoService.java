@@ -15,7 +15,7 @@ public interface ProdutoService {
 
 	public List<Produto> listaProdutos();
 
-	public Produto cadastraProduto(ProdutoDTO produto);
+	public Produto cadastraProduto(ProdutoDTO produtoDTO);
 
 	public Produto atualizaProduto(ProdutoDTO produtoDTO);
 

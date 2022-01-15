@@ -40,13 +40,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public List<Cliente> listaClientes() {
-		List<Cliente> clientes = clienteRepository.findAll();
-
-		if (clientes.isEmpty()) {
-			throw ErroCliente.erroSemClientesCadastrados();
-		}
-
-		return clientes;
+		return clienteRepository.findAll();
 	}
 
 	@Override
@@ -62,8 +56,14 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public Cliente atualizaCliente(ClienteDTO clienteDTO) {
-		Cliente cliente = getClienteByCpf(clienteDTO.getCpf());
+	public Cliente atualizaCliente(Long id, ClienteDTO clienteDTO) {
+		Cliente cliente = getClienteById(id);
+
+		if (!cliente.getCpf().equals(clienteDTO.getCpf())) {
+			throw ErroCliente.erroClienteNaoEncontradoCPF();
+		}
+		
+		cliente.setNome(clienteDTO.getNome());
 		cliente.setIdade(clienteDTO.getIdade());
 		cliente.setEndereco(clienteDTO.getEndereco());
 		salvaCliente(cliente);
@@ -86,11 +86,12 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	private Cliente criaCliente(ClienteDTO clienteDTO) {
-		return new Cliente(
-				clienteDTO.getCpf(),
-				clienteDTO.getNome(),
-				clienteDTO.getIdade(),
-				clienteDTO.getEndereco());
+		return Cliente.builder()
+				.nome(clienteDTO.getNome())
+				.cpf(clienteDTO.getCpf())
+				.idade(clienteDTO.getIdade())
+				.endereco(clienteDTO.getEndereco())
+				.build();
 	}
 
 	private void salvaCliente(Cliente cliente) {

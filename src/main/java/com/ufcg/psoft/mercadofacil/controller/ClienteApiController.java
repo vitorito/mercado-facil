@@ -53,7 +53,7 @@ public class ClienteApiController {
 			@PathVariable("id") Long id,
 			@RequestBody @Valid ClienteDTO clienteDTO) {
 		clienteService.assertExisteClienteById(id);
-		return clienteService.atualizaCliente(clienteDTO);
+		return clienteService.atualizaCliente(id, clienteDTO);
 	}
 
 	@DeleteMapping("/{id}")

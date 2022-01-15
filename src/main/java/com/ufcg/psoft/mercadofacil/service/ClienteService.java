@@ -17,7 +17,7 @@ public interface ClienteService {
 	
 	public Cliente cadastraCliente(ClienteDTO clienteDTO);
 	
-	public Cliente atualizaCliente(ClienteDTO clienteDTO);
+	public Cliente atualizaCliente(Long id, ClienteDTO clienteDTO);
 
 	public void assertExisteClienteById(Long id);
 

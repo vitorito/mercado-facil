@@ -1,8 +1,12 @@
 package com.ufcg.psoft.mercadofacil.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import com.ufcg.psoft.mercadofacil.exception.CustomErrorType;
 import com.ufcg.psoft.mercadofacil.exception.ErroCompra;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Compra;
@@ -12,6 +16,7 @@ import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.repository.CompraRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,34 +47,32 @@ public class CompraServiceImpl implements CompraService {
 		assertTemEmEstoque(produtos);
 
 		BigDecimal total = carrinhoService.calculaTotal(idCarrinho);
-		
+
 		loteService.retiraItensDoEstoque(produtos);
 		carrinhoService.removeTodosProdutos(idCliente);
 
 		Compra compra = new Compra(cliente, produtos, total);
 		salvaCompra(compra);
-		
+
 		return compra;
 	}
-	
+
 	@Override
-	public List<Compra> listaCompras(Long idCliente) {
+	public List<Compra> listaCompras(
+			Long idCliente, String inicio, String fim) {
 		Cliente cliente = clienteService.getClienteById(idCliente);
-		List<Compra> compras = compraRepository.findByCliente(cliente);
 
-		if (compras.isEmpty()) {
-			throw ErroCompra.erroClienteNaoPossuiCompras();
-		}
+		LocalDateTime inicioPeriodo = converteAoInicioDoDia(inicio);
+		LocalDateTime fimPeriodo = converteAoFimDoDia(fim);
 
-		return compras;
+		return compraRepository.findByClienteAndDataBetween(cliente, inicioPeriodo, fimPeriodo);
 	}
-	
+
 	@Override
 	public Compra getCompraById(Long idCliente, Long idCompra) {
 		clienteService.assertExisteClienteById(idCliente);
 		return compraRepository.findById(idCompra).orElseThrow(
-			() -> ErroCompra.erroClienteNaoPossuiCompra()
-		);
+				() -> ErroCompra.erroClienteNaoPossuiCompra());
 	}
 
 	private void salvaCompra(Compra compra) {
@@ -87,19 +90,38 @@ public class CompraServiceImpl implements CompraService {
 
 	private void assertIsDisponivel(Long idCarrinho) {
 		List<Produto> indisponiveis = produtoService.checaDisponibilidade(
-			carrinhoService.getProdutosDoCarrinho(idCarrinho)
-		);
+				carrinhoService.getProdutosDoCarrinho(idCarrinho));
 
 		if (!indisponiveis.isEmpty()) {
 			throw ErroCompra.erroCrompraProdutosIndisponiveis(indisponiveis);
 		}
 	}
-	
+
 	private void assertTemEmEstoque(List<ItemCarrinho> produtos) {
 		List<ItemSemEstoque> insuficientes = loteService.temEmEstoque(produtos);
 
 		if (!insuficientes.isEmpty()) {
 			throw ErroCompra.erroEstoqueInsuficiente(insuficientes);
+		}
+	}
+
+	private LocalDateTime converteAoInicioDoDia(String dataStr) {
+		LocalDate data = toLocalDate(dataStr);
+
+		return data.atStartOfDay();
+	}
+
+	private LocalDateTime converteAoFimDoDia(String dataStr) {
+		LocalDate data = toLocalDate(dataStr);
+
+		return data.atTime(23, 59, 59, 999999999);
+	}
+
+	private LocalDate toLocalDate(String dataStr) {
+		try {
+			return LocalDate.parse(dataStr);
+		} catch (DateTimeParseException ex) {
+			throw new CustomErrorType("Formato de data inválido.", HttpStatus.BAD_REQUEST);
 		}
 	}
 

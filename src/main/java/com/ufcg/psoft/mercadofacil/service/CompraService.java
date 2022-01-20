@@ -6,10 +6,10 @@ import com.ufcg.psoft.mercadofacil.model.Compra;
 
 public interface CompraService {
 
-	public List<Compra> listaCompras(Long idCliente);
+	List<Compra> listaCompras(Long idCliente, String inicio, String fim);
 
-	public Compra getCompraById(Long idCliente, Long idCompra);
+	Compra getCompraById(Long idCliente, Long idCompra);
 
-	public Compra finalizaCompra(Long idCliente);
+	Compra finalizaCompra(Long idCliente);
 
 }

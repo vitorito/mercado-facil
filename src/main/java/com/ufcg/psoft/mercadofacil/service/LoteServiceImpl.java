@@ -1,10 +1,10 @@
 package com.ufcg.psoft.mercadofacil.service;
 
+import static com.ufcg.psoft.mercadofacil.validation.FieldValidator.positive;
+
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
-import com.ufcg.psoft.mercadofacil.exception.ErroLote;
 import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Lote;
@@ -13,8 +13,6 @@ import com.ufcg.psoft.mercadofacil.repository.LoteRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import static com.ufcg.psoft.mercadofacil.validation.FieldValidator.*;
 
 @Service
 public class LoteServiceImpl implements LoteService {
@@ -27,13 +25,7 @@ public class LoteServiceImpl implements LoteService {
 
 	@Override
 	public List<Lote> listaLotes() {
-		List<Lote> lotes = loteRepository.findAll();
-
-		if (lotes.isEmpty()) {
-			throw ErroLote.erroSemLotesCadastrados();
-		}
-
-		return lotes;
+		return loteRepository.findAll();
 	}
 
 	@Override
@@ -43,21 +35,19 @@ public class LoteServiceImpl implements LoteService {
 		Produto produto = produtoService.getProdutoById(idProduto);
 		Lote lote = new Lote(produto, quantidade);
 		salvaLote(lote);
-		produtoService.tornaDisponivel(idProduto);
+		produtoService.tornaDisponivel(produto);
 
 		return lote;
 	}
 
 	@Override
 	public List<Lote> getLotesByProduto(Produto produto) {
-		List<Lote> lotes = loteRepository.findByProduto(produto);
-		ordenaLotes(lotes);
-		return lotes;
+		return loteRepository.findByProdutoOrderByQuantidade(produto);
 	}
 
 	@Override
 	public void retiraItensDoEstoque(List<ItemCarrinho> produtos) {
-		produtos.forEach(item -> {
+		for (ItemCarrinho item: produtos) {
 			Produto produto = item.getProduto();
 			List<Lote> lotes = getLotesByProduto(produto);
 
@@ -73,7 +63,7 @@ public class LoteServiceImpl implements LoteService {
 			}
 			if (novaQntdDeProdutos <= 0)
 				produtoService.tornaIndisponivel(produto);
-		});
+		}
 	}
 
 	@Override
@@ -113,15 +103,6 @@ public class LoteServiceImpl implements LoteService {
 				.sum();
 
 		return total;
-	}
-
-	/**
-	 * Ordena crescentemente os lotes pela quantidades de produtos neles.
-	 * 
-	 * @param lotes Lista de lotes a ser ordenada.
-	 */
-	private void ordenaLotes(List<Lote> lotes) {
-		lotes.sort(Comparator.comparing(Lote::getQuantidade));
 	}
 
 }

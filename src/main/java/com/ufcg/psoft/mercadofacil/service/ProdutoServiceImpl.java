@@ -79,19 +79,9 @@ public class ProdutoServiceImpl implements ProdutoService {
 	}
 
 	@Override
-	public void tornaDisponivel(Long idProduto) {
-		tornaDisponivel(getProdutoById(idProduto));
-	}
-
-	@Override
 	public void tornaDisponivel(Produto produto) {
 		produto.tornaDisponivel();
 		salvaProduto(produto);
-	}
-
-	@Override
-	public void tornaIndisponivel(Long idProduto) {
-		tornaIndisponivel(getProdutoById(idProduto));
 	}
 
 	@Override
@@ -101,12 +91,13 @@ public class ProdutoServiceImpl implements ProdutoService {
 	}
 
 	private Produto criaProduto(ProdutoDTO produtoDTO) {
-		Produto produto = new Produto(
-				produtoDTO.getNome(),
-				produtoDTO.getFabricante(),
-				produtoDTO.getCodigoBarra(),
-				produtoDTO.getCategoria(),
-				produtoDTO.getPreco());
+		Produto produto = Produto.builder()
+				.nome(produtoDTO.getNome())
+				.codigoBarra(produtoDTO.getCodigoBarra())
+				.fabricante(produtoDTO.getFabricante())
+				.categoria(produtoDTO.getCategoria())
+				.preco(produtoDTO.getPreco())
+				.build();
 
 		produto.tornaDisponivel();
 		return produto;

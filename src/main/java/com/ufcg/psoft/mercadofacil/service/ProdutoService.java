@@ -23,11 +23,7 @@ public interface ProdutoService {
 
 	public boolean isDisponivel(Produto Produto);
 
-	public void tornaDisponivel(Long idProduto);
-
 	public void tornaDisponivel(Produto produto);
-
-	public void tornaIndisponivel(Long idProduto);
 
 	public void tornaIndisponivel(Produto produto);
 

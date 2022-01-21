@@ -8,16 +8,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Data
 @NoArgsConstructor
-@RequiredArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Produto {
 
 	@Id
@@ -25,22 +25,29 @@ public class Produto {
 	@Setter(AccessLevel.NONE)
 	private Long id;
 
-	@NonNull
 	private String nome;
 
-	@NonNull
+	@EqualsAndHashCode.Include
 	private String codigoBarra;
 
-	@NonNull
 	private String fabricante;
 
-	@NonNull
 	private String categoria;
 
-	@NonNull
 	private BigDecimal preco;
 
-	private boolean isDisponivel = false;
+	private boolean isDisponivel;
+
+	@Builder
+	private Produto(String nome, String codigoBarra, String fabricante, String categoria,
+			BigDecimal preco) {
+		this.nome = nome;
+		this.codigoBarra = codigoBarra;
+		this.fabricante = fabricante;
+		this.categoria = categoria;
+		this.preco = preco;
+		this.isDisponivel = false;
+	}
 
 	public void tornaDisponivel() {
 		this.isDisponivel = true;

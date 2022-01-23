@@ -8,8 +8,6 @@ public class ErroProduto {
 
 	public static final String PRODUTO_NAO_CADASTRADO_CODIGO = "Não há produto cadastrado com esse código de barras.";
 
-	public static final String PRODUTOS_NAO_CADASTRADOS = "Não há produtos cadastrados.";
-
 	public static final String PRODUTO_JA_CADASTRADO = "Esse produto já esta cadastrado.";
 
 	public static final String PRODUTO_INDISPONIVEL = "Esse produto não está disponível";
@@ -22,10 +20,6 @@ public class ErroProduto {
 		return new CustomErrorType(PRODUTO_NAO_CADASTRADO_CODIGO, HttpStatus.NOT_FOUND);
 	}
 
-	public static CustomErrorType erroSemProdutosCadastrados() {
-		return new CustomErrorType(PRODUTOS_NAO_CADASTRADOS, HttpStatus.NO_CONTENT);
-	}
-
 	public static CustomErrorType erroProdutoJaCadastrado() {
 		return new CustomErrorType(PRODUTO_JA_CADASTRADO, HttpStatus.CONFLICT);
 	}
@@ -33,4 +27,5 @@ public class ErroProduto {
 	public static CustomErrorType erroProdutoIndisponivel() {
 		return new CustomErrorType(PRODUTO_INDISPONIVEL, HttpStatus.CONFLICT);
 	}
+
 }

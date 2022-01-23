@@ -6,9 +6,11 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class ProdutoDTO {
 
 	@NotEmpty

@@ -56,13 +56,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 
 	@Override
 	public List<Produto> listaProdutos() {
-		List<Produto> produtos = produtoRepository.findAll();
-
-		if (produtos.isEmpty()) {
-			throw ErroProduto.erroSemProdutosCadastrados();
-		}
-
-		return produtos;
+		return produtoRepository.findAll();
 	}
 
 	@Override
@@ -70,6 +64,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 		List<Produto> indisponiveis = produtos.stream()
 				.filter(p -> !p.isDisponivel())
 				.collect(Collectors.toList());
+				
 		return indisponiveis;
 	}
 
@@ -106,7 +101,6 @@ public class ProdutoServiceImpl implements ProdutoService {
 	private void atualizaProduto(ProdutoDTO produtoDTO, Produto produto) {
 		produto.setNome(produtoDTO.getNome());
 		produto.setPreco(produtoDTO.getPreco());
-		produto.setCodigoBarra(produtoDTO.getCodigoBarra());
 		produto.setFabricante(produtoDTO.getFabricante());
 		produto.setCategoria(produtoDTO.getCategoria());
 	}
@@ -116,7 +110,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 	}
 
 	private void assertProdutoNaoCadastrado(String codigoBarra) {
-		if (!produtoRepository.existsByCodigoBarra(codigoBarra)) {
+		if (produtoRepository.existsByCodigoBarra(codigoBarra)) {
 			throw ErroProduto.erroProdutoJaCadastrado();
 		}
 	}

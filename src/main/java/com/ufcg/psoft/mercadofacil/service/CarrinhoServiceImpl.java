@@ -23,20 +23,10 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 	@Autowired
 	private ProdutoService produtoService;
 
-	@Autowired
-	private ClienteService clienteService;
-
 	@Override
 	public Carrinho getCarrinhoById(Long idCarrinho) {
 		return carrinhoRepository.findById(idCarrinho).orElseThrow(
 				() -> ErroCarrinho.erroCarrinhoNaoEncontrado());
-	}
-
-	@Override
-	public Carrinho getCarrinhoByCliente(Long idCliente) {
-		Long idCarrinho = clienteService.getClienteById(idCliente).getCpf();
-
-		return getCarrinhoById(idCarrinho);
 	}
 
 	@Override
@@ -55,8 +45,8 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 	}
 
 	@Override
-	public Carrinho adicionaProdutos(Long idCliente, ItemCarrinhoDTO itemCarrinhoDTO) {
-		Carrinho carrinho = getCarrinhoByCliente(idCliente);
+	public Carrinho adicionaProdutos(Long idCarrinho, ItemCarrinhoDTO itemCarrinhoDTO) {
+		Carrinho carrinho = getCarrinhoById(idCarrinho);
 		Produto produto = produtoService.getProdutoById(itemCarrinhoDTO.getIdProduto());
 
 		assertIsdisponivel(produto);
@@ -68,8 +58,8 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 	}
 
 	@Override
-	public Carrinho removeProduto(Long idCliente, ItemCarrinhoDTO itemCarrinhoDTO) {
-		Carrinho carrinho = getCarrinhoByCliente(idCliente);
+	public Carrinho removeProduto(Long idCarrinho, ItemCarrinhoDTO itemCarrinhoDTO) {
+		Carrinho carrinho = getCarrinhoById(idCarrinho);
 		Produto produto = produtoService.getProdutoById(itemCarrinhoDTO.getIdProduto());
 		carrinho.removeProduto(produto, itemCarrinhoDTO.getNumDeItens());
 		salvaCarrinho(carrinho);
@@ -78,12 +68,10 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 	}
 
 	@Override
-	public Carrinho removeTodosProdutos(Long idCliente) {
-		Carrinho carrinho = getCarrinhoByCliente(idCliente);
+	public void removeTodosProdutos(Long idCarrinho) {
+		Carrinho carrinho = getCarrinhoById(idCarrinho);
 		carrinho.removeTodosProdutos();
 		salvaCarrinho(carrinho);
-
-		return carrinho;
 	}
 
 	@Override
@@ -92,7 +80,7 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 	}
 
 	@Override
-	public List<Produto> getProdutosDoCarrinho(Long idCarrinho) {
+	public List<Produto> listaProdutosDoCarrinho(Long idCarrinho) {
 		return getCarrinhoById(idCarrinho).getProdutos();
 	}
 

@@ -49,7 +49,7 @@ public class CompraServiceImpl implements CompraService {
 		BigDecimal total = carrinhoService.calculaTotal(idCarrinho);
 
 		loteService.retiraItensDoEstoque(produtos);
-		carrinhoService.removeTodosProdutos(idCliente);
+		carrinhoService.removeTodosProdutos(idCarrinho);
 
 		Compra compra = new Compra(cliente, produtos, total);
 		salvaCompra(compra);
@@ -90,7 +90,7 @@ public class CompraServiceImpl implements CompraService {
 
 	private void assertIsDisponivel(Long idCarrinho) {
 		List<Produto> indisponiveis = produtoService.checaDisponibilidade(
-				carrinhoService.getProdutosDoCarrinho(idCarrinho));
+				carrinhoService.listaProdutosDoCarrinho(idCarrinho));
 
 		if (!indisponiveis.isEmpty()) {
 			throw ErroCompra.erroCrompraProdutosIndisponiveis(indisponiveis);

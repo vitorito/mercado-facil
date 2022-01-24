@@ -5,6 +5,7 @@ import javax.validation.Valid;
 import com.ufcg.psoft.mercadofacil.DTO.ItemCarrinhoDTO;
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
+import com.ufcg.psoft.mercadofacil.service.ClienteService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,11 +26,15 @@ public class CarrinhoApiController {
 
 	@Autowired
 	CarrinhoService carrinhoService;
+
+	@Autowired
+	ClienteService clienteService;
 	
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
 	public Carrinho getCarrinho(@PathVariable("id") Long idCliente) {
-		return carrinhoService.getCarrinhoByCliente(idCliente);
+		Long idCarrinho = getIdCarrinho(idCliente);
+		return carrinhoService.getCarrinhoById(idCarrinho);
 	}
 
 	@PutMapping
@@ -37,7 +42,8 @@ public class CarrinhoApiController {
 	public Carrinho adicionaProduto(
 			@PathVariable("id") Long idCliente,
 			@RequestBody @Valid ItemCarrinhoDTO itemCarrinhoDTO) {
-		return carrinhoService.adicionaProdutos(idCliente, itemCarrinhoDTO);
+		Long idCarrinho = getIdCarrinho(idCliente);
+		return carrinhoService.adicionaProdutos(idCarrinho, itemCarrinhoDTO);
 	}
 
 	@DeleteMapping
@@ -45,7 +51,12 @@ public class CarrinhoApiController {
 	public Carrinho removeProdutos(
 			@PathVariable("id") Long idCliente,
 			@RequestBody @Valid ItemCarrinhoDTO itemCarrinhoDTO) {
-		return carrinhoService.removeProduto(idCliente, itemCarrinhoDTO);
+		Long idCarrinho = getIdCarrinho(idCliente);
+		return carrinhoService.removeProduto(idCarrinho, itemCarrinhoDTO);
+	}
+
+	private Long getIdCarrinho(Long idCliente) {
+		return clienteService.getClienteById(idCliente).getCpf();
 	}
 
 }

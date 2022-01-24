@@ -10,24 +10,22 @@ import com.ufcg.psoft.mercadofacil.model.Produto;
 
 public interface CarrinhoService {
 	
-	public Carrinho getCarrinhoById(Long id);
+	Carrinho getCarrinhoById(Long id);
 	
-	public Carrinho cadastraCarrinho(Long id);
+	Carrinho cadastraCarrinho(Long id);
 	 
-	public void removeCarrinho(Long id);
+	void removeCarrinho(Long id);
 
-	public Carrinho adicionaProdutos(Long idCliente, ItemCarrinhoDTO itemCarrinhoDTO);
+	Carrinho adicionaProdutos(Long idCarrinho, ItemCarrinhoDTO itemCarrinhoDTO);
 	
-	public Carrinho removeProduto(Long idCliente, ItemCarrinhoDTO itemCarrinhoDTO);
+	Carrinho removeProduto(Long idCarrinho, ItemCarrinhoDTO itemCarrinhoDTO);
 	
-	public Carrinho removeTodosProdutos(Long idCliente);
+	void removeTodosProdutos(Long idCarrinho);
 	
-	public List<ItemCarrinho> listaItensDoCarrinho(Long id);
+	List<ItemCarrinho> listaItensDoCarrinho(Long id);
 
-	public List<Produto> getProdutosDoCarrinho(Long id);
+	List<Produto> listaProdutosDoCarrinho(Long id);
 
-	public BigDecimal calculaTotal(Long idCarrinho);
-
-	public Carrinho getCarrinhoByCliente(Long idCliente);
+	BigDecimal calculaTotal(Long idCarrinho);
 
 }

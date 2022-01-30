@@ -1,4 +1,4 @@
-package com.ufcg.psoft.mercadofacil.service;
+package com.ufcg.psoft.mercadofacil.service.impl;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,6 +10,8 @@ import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.repository.CarrinhoRepository;
+import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
+import com.ufcg.psoft.mercadofacil.service.ProdutoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,11 +79,6 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 	@Override
 	public List<ItemCarrinho> listaItensDoCarrinho(Long idCarrinho) {
 		return getCarrinhoById(idCarrinho).getItens();
-	}
-
-	@Override
-	public List<Produto> listaProdutosDoCarrinho(Long idCarrinho) {
-		return getCarrinhoById(idCarrinho).getProdutos();
 	}
 
 	@Override

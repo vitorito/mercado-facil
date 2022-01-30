@@ -1,6 +1,5 @@
 package com.ufcg.psoft.mercadofacil.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -13,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -40,7 +40,8 @@ public class Compra {
 	private List<ItemCarrinho> produtos;
 
 	@NonNull
-	private BigDecimal total;
+	@OneToOne
+	private Pagamento pagamento;
 
 	private LocalDateTime data = LocalDateTime.now(ZoneId.of("Z"));
 

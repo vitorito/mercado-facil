@@ -19,8 +19,6 @@ public interface ProdutoService {
 
 	public Produto atualizaProduto(ProdutoDTO produtoDTO);
 
-	public List<Produto> checaDisponibilidade(List<Produto> produtos);
-
 	public boolean isDisponivel(Produto Produto);
 
 	public void tornaDisponivel(Produto produto);

@@ -1,12 +1,12 @@
-package com.ufcg.psoft.mercadofacil.service;
+package com.ufcg.psoft.mercadofacil.service.impl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.ufcg.psoft.mercadofacil.DTO.ProdutoDTO;
 import com.ufcg.psoft.mercadofacil.exception.ErroProduto;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.repository.ProdutoRepository;
+import com.ufcg.psoft.mercadofacil.service.ProdutoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,16 +58,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 	public List<Produto> listaProdutos() {
 		return produtoRepository.findAll();
 	}
-
-	@Override
-	public List<Produto> checaDisponibilidade(List<Produto> produtos) {
-		List<Produto> indisponiveis = produtos.stream()
-				.filter(p -> !p.isDisponivel())
-				.collect(Collectors.toList());
-				
-		return indisponiveis;
-	}
-
+	
 	@Override
 	public boolean isDisponivel(Produto produto) {
 		return produto.isDisponivel();

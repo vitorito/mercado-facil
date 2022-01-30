@@ -10,6 +10,6 @@ public interface CompraService {
 
 	Compra getCompraById(Long idCliente, Long idCompra);
 
-	Compra finalizaCompra(Long idCliente);
+	Compra finalizaCompra(Long idCliente, String formaDePagamento);
 
 }

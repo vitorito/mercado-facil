@@ -1,57 +1,69 @@
-package com.ufcg.psoft.mercadofacil.service;
+package com.ufcg.psoft.mercadofacil.service.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.ufcg.psoft.mercadofacil.exception.CustomErrorType;
 import com.ufcg.psoft.mercadofacil.exception.ErroCompra;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Compra;
 import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
+import com.ufcg.psoft.mercadofacil.model.Pagamento;
 import com.ufcg.psoft.mercadofacil.model.Produto;
+import com.ufcg.psoft.mercadofacil.model.TipoCliente;
 import com.ufcg.psoft.mercadofacil.repository.CompraRepository;
+import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
+import com.ufcg.psoft.mercadofacil.service.ClienteService;
+import com.ufcg.psoft.mercadofacil.service.CompraService;
+import com.ufcg.psoft.mercadofacil.service.LoteService;
+import com.ufcg.psoft.mercadofacil.service.PagamentoService;
+import com.ufcg.psoft.mercadofacil.service.ProdutoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CompraServiceImpl implements CompraService {
 
 	@Autowired
-	CompraRepository compraRepository;
+	private CompraRepository compraRepository;
 
 	@Autowired
-	ClienteService clienteService;
+	private ClienteService clienteService;
 
 	@Autowired
-	CarrinhoService carrinhoService;
+	private CarrinhoService carrinhoService;
 
 	@Autowired
-	ProdutoService produtoService;
+	private ProdutoService produtoService;
+
+	@Autowired
+	private PagamentoService pagamentoService;
 
 	@Autowired
 	LoteService loteService;
 
 	@Override
-	public Compra finalizaCompra(Long idCliente) {
+	public Compra finalizaCompra(Long idCliente, String formaDePagamento) {
 		Cliente cliente = clienteService.getClienteById(idCliente);
 		Long idCarrinho = cliente.getCpf();
-		List<ItemCarrinho> produtos = getItensDoCarrinho(idCarrinho);
+		List<ItemCarrinho> itens = getItensDoCarrinho(idCarrinho);
 
-		assertIsDisponivel(idCarrinho);
-		assertTemEmEstoque(produtos);
+		assertIsDisponivel(itens);
+		assertTemEmEstoque(itens);
 
-		BigDecimal total = carrinhoService.calculaTotal(idCarrinho);
+		BigDecimal desconto = calculaDesconto(cliente.getTipo(), itens);
+		BigDecimal totalCompra = carrinhoService.calculaTotal(idCarrinho);
+		Pagamento pagamento = pagamentoService.geraPagamento(totalCompra, formaDePagamento, desconto);
 
-		loteService.retiraItensDoEstoque(produtos);
+		loteService.retiraItensDoEstoque(itens);
 		carrinhoService.removeTodosProdutos(idCarrinho);
 
-		Compra compra = new Compra(cliente, produtos, total);
+		Compra compra = new Compra(cliente, itens, pagamento);
 		salvaCompra(compra);
 
 		return compra;
@@ -88,9 +100,11 @@ public class CompraServiceImpl implements CompraService {
 		return produtos;
 	}
 
-	private void assertIsDisponivel(Long idCarrinho) {
-		List<Produto> indisponiveis = produtoService.checaDisponibilidade(
-				carrinhoService.listaProdutosDoCarrinho(idCarrinho));
+	private void assertIsDisponivel(List<ItemCarrinho> itens) {
+		List<Produto> indisponiveis = itens.stream()
+				.map(ItemCarrinho::getProduto)
+				.filter(p -> !produtoService.isDisponivel(p))
+				.collect(Collectors.toList());
 
 		if (!indisponiveis.isEmpty()) {
 			throw ErroCompra.erroCrompraProdutosIndisponiveis(indisponiveis);
@@ -121,8 +135,26 @@ public class CompraServiceImpl implements CompraService {
 		try {
 			return LocalDate.parse(dataStr);
 		} catch (DateTimeParseException ex) {
-			throw new CustomErrorType("Formato de data inválido.", HttpStatus.BAD_REQUEST);
+			throw ErroCompra.erroFormatoDeDataInvalido();
 		}
+	}
+
+	private BigDecimal calculaDesconto(TipoCliente tipoCliente, List<ItemCarrinho> itens) {
+		int totalItens = calculaTotaItens(itens);
+
+		if (totalItens >= tipoCliente.getMinItens()) {
+			return tipoCliente.getDesconto();
+		}
+
+		return BigDecimal.ZERO;
+	}
+
+	private int calculaTotaItens(List<ItemCarrinho> itens) {
+		int total = itens.stream()
+				.mapToInt(ItemCarrinho::getQuantidade)
+				.sum();
+
+		return total;
 	}
 
 }

@@ -22,6 +22,7 @@ import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.repository.CarrinhoRepository;
+import com.ufcg.psoft.mercadofacil.service.impl.CarrinhoServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,7 +91,7 @@ public class CarrinhoServiceTest {
 		Carrinho carrinho = carrinhoService.cadastraCarrinho(idCarrinho);
 
 		assertEquals(idCarrinho, carrinho.getId());
-		assertTrue(carrinho.getProdutos().isEmpty());
+		assertTrue(carrinho.getItens().isEmpty());
 	}
 
 	@Test
@@ -248,39 +249,6 @@ public class CarrinhoServiceTest {
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
 				() -> carrinhoService.listaItensDoCarrinho(idCarrinhoInexistente));
-
-		assertEquals(ErroCarrinho.NAO_HA_CARRINHO, erro.getMessage());
-	}
-
-	@Test
-	public void listaProdutosDoCarrinhoRetornaListaDeProdutos() {
-		setCarrinhoMock();
-
-		List<Produto> produtos = List.of(produtoMock);
-		when(carrinhoMock.getProdutos()).thenReturn(produtos);
-
-		List<Produto> listaProdutos = carrinhoService.listaProdutosDoCarrinho(idCarrinho);
-
-		assertEquals(produtos, listaProdutos);
-	}
-
-	@Test
-	public void listaProdutosDoCarrinhoRetornaListaVazia() {
-		setCarrinhoMock();
-
-		when(carrinhoMock.getProdutos()).thenReturn(List.of());
-
-		List<Produto> listaProdutos = carrinhoService.listaProdutosDoCarrinho(idCarrinho);
-
-		assertTrue(listaProdutos.isEmpty());
-	}
-
-	@Test
-	public void listaProdutosDeCarrinhoInexistenteLancaErro() {
-		setCarrinhoInexistente();
-
-		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> carrinhoService.listaProdutosDoCarrinho(idCarrinhoInexistente));
 
 		assertEquals(ErroCarrinho.NAO_HA_CARRINHO, erro.getMessage());
 	}

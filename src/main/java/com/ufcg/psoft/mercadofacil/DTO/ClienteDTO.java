@@ -32,4 +32,7 @@ public class ClienteDTO {
 	@NotEmpty
 	private String endereco;
 
+	@NotEmpty
+	private String tipo;
+	
 }

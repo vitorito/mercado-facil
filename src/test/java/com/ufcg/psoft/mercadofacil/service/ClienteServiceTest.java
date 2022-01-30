@@ -7,6 +7,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -17,13 +19,16 @@ import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
 import com.ufcg.psoft.mercadofacil.exception.CustomErrorType;
 import com.ufcg.psoft.mercadofacil.exception.ErroCliente;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
+import com.ufcg.psoft.mercadofacil.model.TipoCliente;
 import com.ufcg.psoft.mercadofacil.repository.ClienteRepository;
+import com.ufcg.psoft.mercadofacil.service.impl.ClienteServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,38 +45,42 @@ public class ClienteServiceTest {
 
 	private List<Cliente> clientes;
 
-	private Cliente cliente;
+	@Spy
+	private Cliente clienteSpy;
+
+	@Mock
+	private ClienteDTO clienteDtoMock;
+
+	private Optional<Cliente> clienteOp;
 
 	private final Long idCliente = 1L;
 
+	private Long idInexistente = 2L;
+
+	private Long clienteDtoMockCpf = 10257965532L;
+
 	@BeforeEach
 	public void setup() {
-		this.cliente = geraCliente("João Victor", 12345678910L, 20, "Rua Bacana");
-		Cliente cliente2 = geraCliente("Lucas Bento", 12377788800L, 37, "Rua Tal");
+		this.clienteSpy = geraCliente("João Victor", 12345678910L, 20, "Rua Bacana", TipoCliente.NORMAL);
+		this.clienteOp = Optional.of(clienteSpy);
+		Cliente cliente2 = geraCliente("Lucas Bento", 12377788800L, 37, "Rua Tal", TipoCliente.ESPECIAL);
 
-		this.clientes = new ArrayList<Cliente>() {
-			{
-				add(cliente);
-				add(cliente2);
-			}
-		};
+		this.clientes = new ArrayList<Cliente>();
+		this.clientes.add(clienteSpy);
+		this.clientes.add(cliente2);
 	}
 
 	@Test
 	public void getClienteByIdRetornaCliente() {
-		when(clienteRepository.findById(idCliente))
-				.thenReturn(Optional.of(cliente));
+		setFindClienteExistente();
 
-		assertEquals(cliente, clienteService.getClienteById(idCliente));
+		assertEquals(clienteSpy, clienteService.getClienteById(idCliente));
 		verify(clienteRepository, times(1)).findById(idCliente);
 	}
 
 	@Test
 	public void getClienteByIdInexistenteRetornaErro() {
-		Long idInexistente = 2L;
-
-		when(clienteRepository.findById(idInexistente))
-				.thenReturn(Optional.empty());
+		setFindClienteInexistente();
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
 				() -> clienteService.getClienteById(idInexistente));
@@ -82,11 +91,11 @@ public class ClienteServiceTest {
 
 	@Test
 	public void getClienteByCpfRetornaCliente() {
-		Long cpf = cliente.getCpf();
+		Long cpf = clienteSpy.getCpf();
 		when(clienteRepository.findByCpf(cpf))
-				.thenReturn(Optional.of(cliente));
+				.thenReturn(clienteOp);
 
-		assertEquals(cliente, clienteService.getClienteByCpf(cpf));
+		assertEquals(clienteSpy, clienteService.getClienteByCpf(cpf));
 		verify(clienteRepository, times(1)).findByCpf(cpf);
 	}
 
@@ -105,23 +114,19 @@ public class ClienteServiceTest {
 	}
 
 	@Test
-	public void removeClienteSemRetorno() {
-		when(clienteRepository.findById(idCliente))
-				.thenReturn(Optional.of(cliente));
+	public void testRemoveCliente() {
+		setFindClienteExistente();
 
 		clienteService.removeCliente(idCliente);
 
 		verify(clienteRepository, times(1)).findById(idCliente);
-		verify(clienteRepository, times(1)).delete(cliente);
-		verify(carrinhoService, times(1)).removeCarrinho(cliente.getCpf());
+		verify(clienteRepository, times(1)).delete(clienteSpy);
+		verify(carrinhoService, times(1)).removeCarrinho(clienteSpy.getCpf());
 	}
 
 	@Test
 	public void removeClienteIdInexistenteRetornaErro() {
-		Long idInexistente = 2L;
-
-		when(clienteRepository.findById(idInexistente))
-				.thenReturn(Optional.empty());
+		setFindClienteInexistente();
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
 				() -> clienteService.removeCliente(idInexistente));
@@ -156,161 +161,206 @@ public class ClienteServiceTest {
 	}
 
 	@Test
-	public void cadastraClienteRetornaClienteCadastrado() {
-		Long clienteDtoCpf = 10257965532L;
-		ClienteDTO clienteDTO = geraClienteDTO("Zé Carlos", clienteDtoCpf, 53, "Rua Coala");
-		Cliente clienteCadastrado = clienteService.cadastraCliente(clienteDTO);
+	public void cadastraClienteNormalRetornaClienteCadastrado() {
+		setClienteDtoMock("Zé Carlos", clienteDtoMockCpf, 53, "Rua Coala", "normal");
 
-		assertEquals(clienteDTO.getNome(), clienteCadastrado.getNome());
-		assertEquals(clienteDTO.getCpf(), clienteCadastrado.getCpf());
-		assertEquals(clienteDTO.getIdade(), clienteCadastrado.getIdade());
-		assertEquals(clienteDTO.getEndereco(), clienteCadastrado.getEndereco());
+		Cliente clienteCadastrado = clienteService.cadastraCliente(clienteDtoMock);
 
-		verify(clienteRepository, times(1)).existsByCpf(clienteDtoCpf);
-		verify(carrinhoService, times(1)).cadastraCarrinho(clienteDtoCpf);
+		assertEquals(clienteDtoMock.getNome(), clienteCadastrado.getNome());
+		assertEquals(clienteDtoMock.getCpf(), clienteCadastrado.getCpf());
+		assertEquals(clienteDtoMock.getIdade(), clienteCadastrado.getIdade());
+		assertEquals(clienteDtoMock.getEndereco(), clienteCadastrado.getEndereco());
+		assertEquals(TipoCliente.NORMAL, clienteCadastrado.getTipo());
+
+		verify(clienteRepository, times(1)).existsByCpf(clienteDtoMockCpf);
+		verify(carrinhoService, times(1)).cadastraCarrinho(clienteDtoMockCpf);
 		verify(clienteRepository, times(1)).save(clienteCadastrado);
 	}
 
 	@Test
-	public void cadastraClienteCpfJaExistenteRetornaErro() {
-		ClienteDTO clienteDTO = geraClienteDTO("Antônio", 10257965532L, 53, "Rua Top");
+	public void cadastraClienteEspecialRetornaClienteCadastrado() {
+		setClienteDtoMock("Zé Carlos", clienteDtoMockCpf, 53, "Rua Coala", "ESPECIAL");
 
-		when(clienteRepository.existsByCpf(clienteDTO.getCpf()))
-				.thenReturn(true);
+		Cliente clienteCadastrado = clienteService.cadastraCliente(clienteDtoMock);
+
+		assertEquals(clienteDtoMock.getNome(), clienteCadastrado.getNome());
+		assertEquals(clienteDtoMock.getCpf(), clienteCadastrado.getCpf());
+		assertEquals(clienteDtoMock.getIdade(), clienteCadastrado.getIdade());
+		assertEquals(clienteDtoMock.getEndereco(), clienteCadastrado.getEndereco());
+		assertEquals(TipoCliente.ESPECIAL, clienteCadastrado.getTipo());
+
+		verify(clienteRepository, times(1)).existsByCpf(clienteDtoMockCpf);
+		verify(carrinhoService, times(1)).cadastraCarrinho(clienteDtoMockCpf);
+		verify(clienteRepository, times(1)).save(clienteCadastrado);
+	}
+
+	@Test
+	public void cadastraClientePremiumRetornaClienteCadastrado() {
+		setClienteDtoMock("Zé Carlos", clienteDtoMockCpf, 53, "Rua Coala", "Premium");
+
+		Cliente clienteCadastrado = clienteService.cadastraCliente(clienteDtoMock);
+
+		assertEquals(clienteDtoMock.getNome(), clienteCadastrado.getNome());
+		assertEquals(clienteDtoMock.getCpf(), clienteCadastrado.getCpf());
+		assertEquals(clienteDtoMock.getIdade(), clienteCadastrado.getIdade());
+		assertEquals(clienteDtoMock.getEndereco(), clienteCadastrado.getEndereco());
+		assertEquals(TipoCliente.PREMIUM, clienteCadastrado.getTipo());
+
+		verify(clienteRepository, times(1)).existsByCpf(clienteDtoMockCpf);
+		verify(carrinhoService, times(1)).cadastraCarrinho(clienteDtoMockCpf);
+		verify(clienteRepository, times(1)).save(clienteCadastrado);
+	}
+
+	@Test
+	public void cadastraClienteComTipoInexistenteRetornaErro() {
+		when(clienteDtoMock.getCpf()).thenReturn(clienteDtoMockCpf);
+		when(clienteDtoMock.getTipo()).thenReturn("TipoInexistente");
+
+		setExistsByCpf(clienteDtoMockCpf, false);
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> clienteService.cadastraCliente(clienteDTO));
+				() -> clienteService.cadastraCliente(clienteDtoMock));
+
+		String mensagemErro = ErroCliente.TIPO_CLIENTE_INVALIDO + TipoCliente.valuesToString();
+		assertEquals(mensagemErro, erro.getMessage());
+
+		verifyNoMoreInteractions(clienteDtoMock);
+		verify(carrinhoService, never()).cadastraCarrinho(any());
+		verify(clienteRepository, never()).save(any());
+	}
+
+	@Test
+	public void cadastraClienteCpfJaExistenteRetornaErro() {
+		when(clienteDtoMock.getCpf()).thenReturn(clienteDtoMockCpf);
+
+		setExistsByCpf(clienteDtoMockCpf, true);
+
+		CustomErrorType erro = assertThrows(CustomErrorType.class,
+				() -> clienteService.cadastraCliente(clienteDtoMock));
 
 		assertEquals(ErroCliente.CLIENTE_JA_CADASTRADO, erro.getMessage());
 
+		verifyNoMoreInteractions(clienteDtoMock);
 		verify(carrinhoService, never()).cadastraCarrinho(any());
 		verify(clienteRepository, never()).save(any());
 	}
 
 	@Test
 	public void atualizaClienteRetornaClienteAtualizado() {
-		Long clienteCpf = cliente.getCpf();
-		ClienteDTO clienteDTO = geraClienteDTO("Maria", clienteCpf, 22, "Rua Massa");
+		Long clienteCpf = clienteSpy.getCpf();
+		setClienteDtoMock("Maria", clienteCpf, 22, "Rua Massa", "premium");
+		setFindClienteExistente();
 
-		when(clienteRepository.findById(idCliente))
-				.thenReturn(Optional.of(cliente));
-
-		Cliente clienteAtualizado = clienteService.atualizaCliente(idCliente, clienteDTO);
+		Cliente clienteAtualizado = clienteService.atualizaCliente(idCliente, clienteDtoMock);
 
 		assertEquals(clienteCpf, clienteAtualizado.getCpf());
-		assertEquals(clienteDTO.getNome(), clienteAtualizado.getNome());
-		assertEquals(clienteDTO.getIdade(), clienteAtualizado.getIdade());
-		assertEquals(clienteDTO.getEndereco(), clienteAtualizado.getEndereco());
+		assertEquals(clienteDtoMock.getNome(), clienteAtualizado.getNome());
+		assertEquals(clienteDtoMock.getIdade(), clienteAtualizado.getIdade());
+		assertEquals(clienteDtoMock.getEndereco(), clienteAtualizado.getEndereco());
+		assertEquals(TipoCliente.PREMIUM, clienteAtualizado.getTipo());
 
-		verify(clienteRepository, times(1)).save(cliente);
+		verify(clienteRepository, times(1)).save(clienteSpy);
 	}
 
 	@Test
 	public void atualizaClienteIdInexistenteRetornaErro() {
-		String clienteNome = cliente.getNome();
-		Long clienteCpf = cliente.getCpf();
-		int clienteIdade = cliente.getIdade();
-		String clienteEndereco = cliente.getEndereco();
-
-		Long idInexistente = 2L;
-		ClienteDTO clienteDTO = geraClienteDTO("Maria", clienteCpf, 22, "Rua Massa");
-
-		when(clienteRepository.findById(idInexistente))
-				.thenReturn(Optional.empty());
+		setFindClienteInexistente();
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> clienteService.atualizaCliente(idInexistente, clienteDTO));
+				() -> clienteService.atualizaCliente(idInexistente, clienteDtoMock));
 
 		assertEquals(ErroCliente.CLIENTE_NAO_CADASTRADO_ID, erro.getMessage());
 
-		assertEquals(clienteNome, cliente.getNome());
-		assertEquals(clienteCpf, cliente.getCpf());
-		assertEquals(clienteIdade, cliente.getIdade());
-		assertEquals(clienteEndereco, cliente.getEndereco());
-
+		verifyNoInteractions(clienteDtoMock);
 		verify(clienteRepository, never()).save(any());
 	}
 
 	@Test
 	public void atualizaClienteCpfInexistenteRetornaErro() {
-		String clienteNome = cliente.getNome();
-		Long clienteCpf = cliente.getCpf();
-		int clienteIdade = cliente.getIdade();
-		String clienteEndereco = cliente.getEndereco();
-
-		Long cpfInexistente = 40028922L;
-		ClienteDTO clienteDTO = geraClienteDTO("Maria", cpfInexistente, 22, "Rua Massa");
-
-		when(clienteRepository.findById(idCliente))
-				.thenReturn(Optional.of(cliente));
+		when(clienteDtoMock.getCpf()).thenReturn(clienteDtoMockCpf);
+		setFindClienteExistente();
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> clienteService.atualizaCliente(idCliente, clienteDTO));
+				() -> clienteService.atualizaCliente(idCliente, clienteDtoMock));
 
 		assertEquals(ErroCliente.CLIENTE_NAO_CADASTRADO_CPF, erro.getMessage());
 
-		assertEquals(clienteNome, cliente.getNome());
-		assertEquals(clienteCpf, cliente.getCpf());
-		assertEquals(clienteIdade, cliente.getIdade());
-		assertEquals(clienteEndereco, cliente.getEndereco());
-
+		verifyNoMoreInteractions(clienteDtoMock);
 		verify(clienteRepository, never()).save(any());
 	}
 
 	@Test
-	public void assertExisteClienteByIdOk() {
-		when(clienteRepository.existsById(idCliente))
-				.thenReturn(true);
+	public void assertExisteClienteById() {
+		setExistsById(idCliente, true);
 
 		clienteService.assertExisteClienteById(idCliente);
 	}
 
 	@Test
 	public void assertExisteClienteByIdRetornaErro() {
-		when(clienteRepository.existsById(idCliente))
-				.thenReturn(false);
+		setExistsById(idInexistente, false);
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> clienteService.assertExisteClienteById(idCliente));
-			
+				() -> clienteService.assertExisteClienteById(idInexistente));
+
 		assertEquals(ErroCliente.CLIENTE_NAO_CADASTRADO_ID, erro.getMessage());
 	}
 
 	@Test
 	public void assertExisteClienteByCpfOk() {
-		when(clienteRepository.existsByCpf(idCliente))
-				.thenReturn(true);
+		setExistsByCpf(clienteSpy.getCpf(), true);
 
-		clienteService.assertExisteClienteByCpf(idCliente);
+		clienteService.assertExisteClienteByCpf(clienteSpy.getCpf());
 	}
 
 	@Test
 	public void assertExisteClienteByCpfRetornaErro() {
-		when(clienteRepository.existsByCpf(idCliente))
-				.thenReturn(false);
+		Long cpfInexistente = 2423L;
+		setExistsByCpf(cpfInexistente, false);
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> clienteService.assertExisteClienteByCpf(idCliente));
-			
+				() -> clienteService.assertExisteClienteByCpf(cpfInexistente));
+
 		assertEquals(ErroCliente.CLIENTE_NAO_CADASTRADO_CPF, erro.getMessage());
 	}
 
-	private ClienteDTO geraClienteDTO(String nome, Long cpf, int idade, String endereco) {
-		return ClienteDTO.builder()
-				.nome(nome)
-				.cpf(cpf)
-				.idade(idade)
-				.endereco(endereco)
-				.build();
-	}
-
-	private Cliente geraCliente(String nome, Long cpf, int idade, String endereco) {
+	private Cliente geraCliente(String nome, Long cpf, int idade, String endereco, TipoCliente tipo) {
 		return Cliente.builder()
 				.nome(nome)
 				.cpf(cpf)
 				.idade(idade)
 				.endereco(endereco)
+				.tipo(tipo)
 				.build();
+	}
+
+	private void setFindClienteExistente() {
+		setFindById(idCliente, clienteOp);
+	}
+
+	private void setFindClienteInexistente() {
+		setFindById(idInexistente, Optional.empty());
+	}
+
+	private void setFindById(Long id, Optional<Cliente> retorno) {
+		when(clienteRepository.findById(id))
+				.thenReturn(retorno);
+	}
+
+	private void setExistsByCpf(Long cpf, boolean valor) {
+		when(clienteRepository.existsByCpf(cpf)).thenReturn(valor);
+	}
+
+	private void setExistsById(Long id, boolean valor) {
+		when(clienteRepository.existsById(id)).thenReturn(valor);
+	}
+
+	private void setClienteDtoMock(String nome, Long cpf, int idade, String endereco, String tipo) {
+		when(clienteDtoMock.getNome()).thenReturn(nome);
+		when(clienteDtoMock.getCpf()).thenReturn(cpf);
+		when(clienteDtoMock.getIdade()).thenReturn(idade);
+		when(clienteDtoMock.getEndereco()).thenReturn(endereco);
+		when(clienteDtoMock.getTipo()).thenReturn(tipo);
 	}
 
 }

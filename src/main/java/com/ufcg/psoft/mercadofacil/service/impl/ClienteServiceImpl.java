@@ -1,11 +1,14 @@
-package com.ufcg.psoft.mercadofacil.service;
+package com.ufcg.psoft.mercadofacil.service.impl;
 
 import java.util.List;
 
 import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
 import com.ufcg.psoft.mercadofacil.exception.ErroCliente;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
+import com.ufcg.psoft.mercadofacil.model.TipoCliente;
 import com.ufcg.psoft.mercadofacil.repository.ClienteRepository;
+import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
+import com.ufcg.psoft.mercadofacil.service.ClienteService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,7 +65,9 @@ public class ClienteServiceImpl implements ClienteService {
 		if (!cliente.getCpf().equals(clienteDTO.getCpf())) {
 			throw ErroCliente.erroClienteNaoEncontradoCPF();
 		}
-		
+
+		TipoCliente tipo = getTipoCliente(clienteDTO.getTipo());
+		cliente.setTipo(tipo);
 		cliente.setNome(clienteDTO.getNome());
 		cliente.setIdade(clienteDTO.getIdade());
 		cliente.setEndereco(clienteDTO.getEndereco());
@@ -86,12 +91,24 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	private Cliente criaCliente(ClienteDTO clienteDTO) {
-		return Cliente.builder()
+		TipoCliente tipo = getTipoCliente(clienteDTO.getTipo());
+		Cliente cliente = Cliente.builder()
 				.nome(clienteDTO.getNome())
 				.cpf(clienteDTO.getCpf())
 				.idade(clienteDTO.getIdade())
 				.endereco(clienteDTO.getEndereco())
+				.tipo(tipo)
 				.build();
+
+		return cliente;
+	}
+
+	private TipoCliente getTipoCliente(String tipo) {
+		try {
+			return TipoCliente.valueOf(tipo.toUpperCase());
+		} catch (IllegalArgumentException ex) {
+			throw ErroCliente.erroTipoInvalidoDeCliente();
+		}
 	}
 
 	private void salvaCliente(Cliente cliente) {

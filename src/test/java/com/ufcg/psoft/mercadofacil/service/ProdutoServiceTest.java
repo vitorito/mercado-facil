@@ -21,6 +21,7 @@ import com.ufcg.psoft.mercadofacil.exception.CustomErrorType;
 import com.ufcg.psoft.mercadofacil.exception.ErroProduto;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.repository.ProdutoRepository;
+import com.ufcg.psoft.mercadofacil.service.impl.ProdutoServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -225,27 +226,6 @@ public class ProdutoServiceTest {
 		List<Produto> produtosLista = produtoService.listaProdutos();
 
 		assertTrue(produtosLista.isEmpty());
-	}
-
-	@Test
-	public void checaDisponibilidadeRetornaListaVazia() {
-		when(produto1.isDisponivel()).thenReturn(true);
-		when(produto2.isDisponivel()).thenReturn(true);
-
-		List<Produto> indisponiveis = produtoService.checaDisponibilidade(produtos);
-
-		assertTrue(indisponiveis.isEmpty());
-	}
-
-	@Test
-	public void checaDisponibilidadeRetornaListaDeIndisponiveis() {
-		when(produto1.isDisponivel()).thenReturn(true);
-		when(produto2.isDisponivel()).thenReturn(false);
-
-		List<Produto> indisponiveis = produtoService.checaDisponibilidade(produtos);
-
-		assertEquals(1, indisponiveis.size());
-		assertEquals(produto2, indisponiveis.get(0));
 	}
 
 	@Test

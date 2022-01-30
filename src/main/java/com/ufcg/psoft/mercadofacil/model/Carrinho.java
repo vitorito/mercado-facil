@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -37,15 +36,6 @@ public class Carrinho {
 
 	public List<ItemCarrinho> getItens() {
 		return new ArrayList<>(produtos);
-	}
-
-	@JsonIgnore
-	public List<Produto> getProdutos() {
-		List<Produto> produtosList = produtos.stream()
-				.map(ItemCarrinho::getProduto)
-				.collect(Collectors.toList());
-
-		return produtosList;
 	}
 
 	public void adicionaProdutos(Produto produto, int quantidade) {

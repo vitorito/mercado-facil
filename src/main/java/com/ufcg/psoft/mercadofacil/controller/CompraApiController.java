@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import com.ufcg.psoft.mercadofacil.model.Compra;
+import com.ufcg.psoft.mercadofacil.model.FormaDePagamento;
 import com.ufcg.psoft.mercadofacil.service.CompraService;
+import com.ufcg.psoft.mercadofacil.service.PagamentoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,13 +14,14 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/cliente/{id}/compra")
+@RequestMapping("/api")
 @CrossOrigin
 public class CompraApiController {
 
@@ -29,13 +32,20 @@ public class CompraApiController {
 	@Autowired
 	CompraService compraService;
 
-	@PostMapping
+	@Autowired
+	PagamentoService pagamentoService;
+
+	@PostMapping("/cliente/{id}/compra")
 	@ResponseStatus(HttpStatus.OK)
-	public Compra finalizaCompra(@PathVariable("id") Long idCliente) {
-		return compraService.finalizaCompra(idCliente);
+	public Compra finalizaCompra(@PathVariable("id") Long idCliente,
+			@RequestBody(required = false) String formaDePagamento) {
+		if (formaDePagamento == null) {
+			formaDePagamento = "BOLETO";
+		}
+		return compraService.finalizaCompra(idCliente, formaDePagamento);
 	}
 
-	@GetMapping
+	@GetMapping("/cliente/{id}/compra")
 	@ResponseStatus(HttpStatus.OK)
 	public List<Compra> listaCompras(
 			@PathVariable("id") Long idCliente,
@@ -50,12 +60,18 @@ public class CompraApiController {
 		return compraService.listaCompras(idCliente, inicio, fim);
 	}
 
-	@GetMapping("/{idCompra}")
+	@GetMapping("/cliente/{id}/compra/{idCompra}")
 	@ResponseStatus(HttpStatus.OK)
 	public Compra getCompra(
 			@PathVariable("id") Long idCliente,
 			@PathVariable("idCompra") Long idCompra) {
 		return compraService.getCompraById(idCliente, idCompra);
+	}
+
+	@GetMapping("/api/compra/pagamento")
+	@ResponseStatus(HttpStatus.OK)
+	public FormaDePagamento[] listaFormasDePagamento() {
+		return pagamentoService.listaFormasDePagamento();
 	}
 
 }

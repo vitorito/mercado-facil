@@ -1,4 +1,4 @@
-package com.ufcg.psoft.mercadofacil.service;
+package com.ufcg.psoft.mercadofacil.service.impl;
 
 import static com.ufcg.psoft.mercadofacil.validation.FieldValidator.positive;
 
@@ -10,6 +10,8 @@ import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Lote;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.repository.LoteRepository;
+import com.ufcg.psoft.mercadofacil.service.LoteService;
+import com.ufcg.psoft.mercadofacil.service.ProdutoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

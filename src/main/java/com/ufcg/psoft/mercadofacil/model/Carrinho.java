@@ -77,18 +77,26 @@ public class Carrinho {
 	public boolean containsProduto(Produto produto) {
 		return this.getItemDoCarrinho(produto).isPresent();
 	}
+	
+	public boolean isEmpty() {
+		return this.produtos.isEmpty();
+	}
 
+	public int getTotalItens() {
+		return this.produtos.stream()
+				.mapToInt(ItemCarrinho::getQuantidade)
+				.sum();
+	}
+	
 	private ItemCarrinho assertTemProduto(Produto produto) {
 		return getItemDoCarrinho(produto).orElseThrow(
 				() -> ErroCarrinho.erroCarrinhoNaoTemProduto());
 	}
 
 	private Optional<ItemCarrinho> getItemDoCarrinho(Produto produto) {
-		Optional<ItemCarrinho> result = produtos.stream()
+		return this.produtos.stream()
 				.filter(item -> item.getProduto().equals(produto))
 				.findAny();
-
-		return result;
 	}
 
 }

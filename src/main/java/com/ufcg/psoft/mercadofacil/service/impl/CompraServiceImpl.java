@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.ufcg.psoft.mercadofacil.exception.ErroCompra;
+import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Compra;
 import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
@@ -21,7 +22,6 @@ import com.ufcg.psoft.mercadofacil.service.ClienteService;
 import com.ufcg.psoft.mercadofacil.service.CompraService;
 import com.ufcg.psoft.mercadofacil.service.LoteService;
 import com.ufcg.psoft.mercadofacil.service.PagamentoService;
-import com.ufcg.psoft.mercadofacil.service.ProdutoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,29 +39,28 @@ public class CompraServiceImpl implements CompraService {
 	private CarrinhoService carrinhoService;
 
 	@Autowired
-	private ProdutoService produtoService;
-
-	@Autowired
 	private PagamentoService pagamentoService;
 
 	@Autowired
-	LoteService loteService;
+	private LoteService loteService;
 
 	@Override
 	public Compra finalizaCompra(Long idCliente, String formaDePagamento) {
 		Cliente cliente = clienteService.getClienteById(idCliente);
 		Long idCarrinho = cliente.getCpf();
-		List<ItemCarrinho> itens = getItensDoCarrinho(idCarrinho);
+		Carrinho carrinho = carrinhoService.getCarrinhoById(idCarrinho);
+		List<ItemCarrinho> itens = getItensDoCarrinho(carrinho);
 
 		assertIsDisponivel(itens);
 		assertTemEmEstoque(itens);
 
-		BigDecimal desconto = calculaDesconto(cliente.getTipo(), itens);
-		BigDecimal totalCompra = carrinhoService.calculaTotal(idCarrinho);
+		int totalItens = carrinho.getTotalItens();
+		BigDecimal desconto = calculaDesconto(cliente.getTipo(), totalItens);
+		BigDecimal totalCompra = carrinho.getTotal();
 		Pagamento pagamento = pagamentoService.geraPagamento(totalCompra, formaDePagamento, desconto);
 
 		loteService.retiraItensDoEstoque(itens);
-		carrinhoService.removeTodosProdutos(idCarrinho);
+		carrinhoService.removeTodosProdutos(carrinho);
 
 		Compra compra = new Compra(cliente, itens, pagamento);
 		salvaCompra(compra);
@@ -91,19 +90,17 @@ public class CompraServiceImpl implements CompraService {
 		compraRepository.save(compra);
 	}
 
-	private List<ItemCarrinho> getItensDoCarrinho(Long idCarrinho) {
-		List<ItemCarrinho> produtos = carrinhoService.listaItensDoCarrinho(idCarrinho);
-
-		if (produtos.isEmpty()) {
+	private List<ItemCarrinho> getItensDoCarrinho(Carrinho carrinho) {
+		if (carrinho.isEmpty()) {
 			throw ErroCompra.erroCarrinhoVazio();
 		}
-		return produtos;
+		return carrinho.getItens();
 	}
 
 	private void assertIsDisponivel(List<ItemCarrinho> itens) {
 		List<Produto> indisponiveis = itens.stream()
 				.map(ItemCarrinho::getProduto)
-				.filter(p -> !produtoService.isDisponivel(p))
+				.filter(p -> !p.isDisponivel())
 				.collect(Collectors.toList());
 
 		if (!indisponiveis.isEmpty()) {
@@ -139,22 +136,11 @@ public class CompraServiceImpl implements CompraService {
 		}
 	}
 
-	private BigDecimal calculaDesconto(TipoCliente tipoCliente, List<ItemCarrinho> itens) {
-		int totalItens = calculaTotaItens(itens);
-
+	private BigDecimal calculaDesconto(TipoCliente tipoCliente, int totalItens) {
 		if (totalItens >= tipoCliente.getMinItens()) {
 			return tipoCliente.getDesconto();
 		}
-
 		return BigDecimal.ZERO;
-	}
-
-	private int calculaTotaItens(List<ItemCarrinho> itens) {
-		int total = itens.stream()
-				.mapToInt(ItemCarrinho::getQuantidade)
-				.sum();
-
-		return total;
 	}
 
 }

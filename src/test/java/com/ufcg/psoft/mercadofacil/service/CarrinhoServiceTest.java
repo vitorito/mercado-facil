@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -199,23 +198,10 @@ public class CarrinhoServiceTest {
 
 	@Test
 	public void removeTodosProdutos() {
-		setCarrinhoMock();
-
-		carrinhoService.removeTodosProdutos(idCarrinho);
+		carrinhoService.removeTodosProdutos(carrinhoMock);
 
 		verify(carrinhoMock, times(1)).removeTodosProdutos();
 		verify(carrinhoRepository, times(1)).save(carrinhoMock);
-	}
-
-	@Test
-	public void removeTodosProdutosDeCarrinhoInexistenteLancaErro() {
-		setCarrinhoInexistente();
-
-		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> carrinhoService.removeTodosProdutos(idCarrinhoInexistente));
-
-		assertEquals(ErroCarrinho.NAO_HA_CARRINHO, erro.getMessage());
-		verify(carrinhoRepository, never()).save(any());
 	}
 
 	@Test
@@ -249,27 +235,6 @@ public class CarrinhoServiceTest {
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
 				() -> carrinhoService.listaItensDoCarrinho(idCarrinhoInexistente));
-
-		assertEquals(ErroCarrinho.NAO_HA_CARRINHO, erro.getMessage());
-	}
-
-	@Test
-	public void calculaTotalRetornaOTotalDoCarrinho() {
-		setCarrinhoMock();
-
-		BigDecimal total = BigDecimal.valueOf(7.5);
-		when(carrinhoMock.getTotal()).thenReturn(total);
-
-		assertEquals(total, carrinhoService.calculaTotal(idCarrinho));
-	}
-
-
-	@Test
-	public void calculaTotalDeCarrinhoInexistenteLancaErro() {
-		setCarrinhoInexistente();
-
-		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> carrinhoService.calculaTotal(idCarrinhoInexistente));
 
 		assertEquals(ErroCarrinho.NAO_HA_CARRINHO, erro.getMessage());
 	}

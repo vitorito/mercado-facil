@@ -1,6 +1,5 @@
 package com.ufcg.psoft.mercadofacil.service.impl;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import com.ufcg.psoft.mercadofacil.DTO.ItemCarrinhoDTO;
@@ -70,8 +69,7 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 	}
 
 	@Override
-	public void removeTodosProdutos(Long idCarrinho) {
-		Carrinho carrinho = getCarrinhoById(idCarrinho);
+	public void removeTodosProdutos(Carrinho carrinho) {
 		carrinho.removeTodosProdutos();
 		salvaCarrinho(carrinho);
 	}
@@ -79,11 +77,6 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 	@Override
 	public List<ItemCarrinho> listaItensDoCarrinho(Long idCarrinho) {
 		return getCarrinhoById(idCarrinho).getItens();
-	}
-
-	@Override
-	public BigDecimal calculaTotal(Long idCarrinho) {
-		return getCarrinhoById(idCarrinho).getTotal();
 	}
 
 	private void salvaCarrinho(Carrinho carrinho) {

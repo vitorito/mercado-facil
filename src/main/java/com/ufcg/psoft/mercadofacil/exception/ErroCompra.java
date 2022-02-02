@@ -20,8 +20,6 @@ public class ErroCompra {
 
 	public static final String CLIENTE_NAO_POSSUI_COMPRA = "Esse cliente não possui essa compra.";
 
-	public static final String CLIENTE_NAO_POSSUI_NENHUMA_COMPRA = "Esse cliente não possui nenhuma compra.";
-
 	public static final String FORMATO_DATA_INVALIDO = "Formato de data inválido."
 			+ "O formato válido é yyyy-MM-dd.";
 
@@ -59,10 +57,6 @@ public class ErroCompra {
 		return new CustomErrorType(CLIENTE_NAO_POSSUI_COMPRA, HttpStatus.NOT_FOUND);
 	}
 
-	public static CustomErrorType erroClienteNaoPossuiCompras() {
-		return new CustomErrorType(CLIENTE_NAO_POSSUI_NENHUMA_COMPRA, HttpStatus.NOT_FOUND);
-	}
-
 	public static CustomErrorType erroFormatoDeDataInvalido() {
 		return new CustomErrorType(FORMATO_DATA_INVALIDO, HttpStatus.BAD_REQUEST);
 	}
@@ -70,7 +64,7 @@ public class ErroCompra {
 	public static CustomErrorType erroFormaDePagamentoInvalida() {
 		String formasValidas = Arrays.toString(FormaDePagamento.values());
 		String message = FORMA_PAGAMENTO_INVALIDA + formasValidas;
-		
+
 		return new CustomErrorType(message, HttpStatus.BAD_REQUEST);
 	}
 

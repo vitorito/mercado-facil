@@ -1,6 +1,5 @@
 package com.ufcg.psoft.mercadofacil.exception;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,8 +61,7 @@ public class ErroCompra {
 	}
 
 	public static CustomErrorType erroFormaDePagamentoInvalida() {
-		String formasValidas = Arrays.toString(FormaDePagamento.values());
-		String message = FORMA_PAGAMENTO_INVALIDA + formasValidas;
+		String message = FORMA_PAGAMENTO_INVALIDA + FormaDePagamento.valuesToString();
 
 		return new CustomErrorType(message, HttpStatus.BAD_REQUEST);
 	}

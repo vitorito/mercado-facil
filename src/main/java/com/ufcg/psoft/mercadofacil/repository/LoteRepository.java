@@ -9,5 +9,5 @@ import com.ufcg.psoft.mercadofacil.model.Produto;
 
 public interface LoteRepository extends JpaRepository<Lote, Long>{
 
-	List<Lote> findByProduto(Produto produto);
+	List<Lote> findByProdutoOrderByQuantidade(Produto produto);
 }

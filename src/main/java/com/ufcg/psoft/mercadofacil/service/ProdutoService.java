@@ -1,29 +1,29 @@
 package com.ufcg.psoft.mercadofacil.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.ufcg.psoft.mercadofacil.DTO.ProdutoDTO;
-import com.ufcg.psoft.mercadofacil.model.ItemDoCarrinho;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 
 public interface ProdutoService {
 
-	public Optional<Produto> getProdutoById(long id);
-	
-	public List<Produto> getProdutoByCodigoBarra(String codigo);
-	
-	public void removerProdutoCadastrado(Produto produto);
+	public Produto getProdutoById(Long id);
 
-	public void salvarProdutoCadastrado(Produto produto);
+	public Produto getProdutoByCodigoBarra(String codigo);
 
-	public List<Produto> listarProdutos();
-	
-	public Produto criaProduto(ProdutoDTO produto);
-	
-	public Produto atualizaProduto(ProdutoDTO produtoDTO, Produto produto);
+	public void removeProduto(Long id);
 
-	public List<Produto> checaDisponibilidade(List<ItemDoCarrinho> produtos);
+	public List<Produto> listaProdutos();
 
-	public boolean isDisponivel(Produto produto);
+	public Produto cadastraProduto(ProdutoDTO produtoDTO);
+
+	public Produto atualizaProduto(ProdutoDTO produtoDTO);
+
+	public boolean isDisponivel(Produto Produto);
+
+	public void tornaDisponivel(Produto produto);
+
+	public void tornaIndisponivel(Produto produto);
+
+
 }

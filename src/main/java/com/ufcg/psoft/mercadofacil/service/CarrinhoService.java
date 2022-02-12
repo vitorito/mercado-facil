@@ -1,30 +1,25 @@
 package com.ufcg.psoft.mercadofacil.service;
 
 import java.util.List;
-import java.util.Optional;
 
+import com.ufcg.psoft.mercadofacil.DTO.ItemCarrinhoDTO;
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
-import com.ufcg.psoft.mercadofacil.model.ItemDoCarrinho;
-import com.ufcg.psoft.mercadofacil.model.Produto;
+import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 
 public interface CarrinhoService {
 	
-	public Optional<Carrinho> getCarrinhoById(Long id);
+	Carrinho getCarrinhoById(Long id);
 	
-	public Carrinho criaCarrinho(Long id);
-	
-	public void removeCarrinho(Carrinho carrinho);
+	Carrinho cadastraCarrinho(Long id);
+	 
+	void removeCarrinho(Long id);
 
-	public void salvaCarrinho(Carrinho carrinho);
-
-	public void adicionaProdutos(Carrinho carrinho, Produto produto, int numDeItens);
+	Carrinho adicionaProdutos(Long idCarrinho, ItemCarrinhoDTO itemCarrinhoDTO);
 	
-	public void removeProdutos(Carrinho carrinho, Produto produto, int numDeItens);
+	Carrinho removeProduto(Long idCarrinho, ItemCarrinhoDTO itemCarrinhoDTO);
 	
-	public void removeTodosProdutos(Carrinho carrinho);
+	void removeTodosProdutos(Carrinho carrinho);
 	
-	public List<ItemDoCarrinho> listaProdutos(Carrinho carrinho);
-
-	public boolean containsProduto(Carrinho carrinho, Produto produto);
+	List<ItemCarrinho> listaItensDoCarrinho(Long id);
 
 }

@@ -1,21 +1,15 @@
 package com.ufcg.psoft.mercadofacil.service;
 
 import java.util.List;
-import java.util.Optional;
 
-import com.ufcg.psoft.mercadofacil.model.Carrinho;
-import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Compra;
-
 
 public interface CompraService {
 
-	public Compra criaCompra(Cliente cliente, Carrinho carrinho);
+	List<Compra> listaCompras(Long idCliente, String inicio, String fim);
 
-	public void salvaCompra(Compra compra);
+	Compra getCompraById(Long idCliente, Long idCompra);
 
-	public List<Compra> listaCompras(Cliente cliente);
-
-	public Optional<Compra> getCompraById(long idCompra);
+	Compra finalizaCompra(Long idCliente, String formaDePagamento);
 
 }

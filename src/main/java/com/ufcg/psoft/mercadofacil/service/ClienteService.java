@@ -1,25 +1,26 @@
 package com.ufcg.psoft.mercadofacil.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
 
 public interface ClienteService {
 
-	public Optional<Cliente> getClienteById(Long id);
+	public Cliente getClienteById(Long id);
 	
-	public Optional<Cliente> getClienteByCPF(Long cpf);
+	public Cliente getClienteByCpf(Long cpf);
 	
-	public void removerClienteCadastrado(Cliente cliente);
+	public void removeCliente(Long id);
 
-	public void salvarClienteCadastrado(Cliente cliente);
+	public List<Cliente> listaClientes();
+	
+	public Cliente cadastraCliente(ClienteDTO clienteDTO);
+	
+	public Cliente atualizaCliente(Long id, ClienteDTO clienteDTO);
 
-	public List<Cliente> listarClientes();
-	
-	public Cliente criaCliente(ClienteDTO clienteDTO);
-	
-	public Cliente atualizaCliente(ClienteDTO clienteDTO, Cliente cliente);
+	public void assertExisteClienteById(Long id);
+
+	public void assertExisteClienteByCpf(Long cpf);
 
 }

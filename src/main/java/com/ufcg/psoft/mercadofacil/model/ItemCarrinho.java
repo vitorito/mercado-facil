@@ -1,5 +1,7 @@
 package com.ufcg.psoft.mercadofacil.model;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,25 +13,28 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Getter
-@ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class Lote {
+public class ItemCarrinho {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-	
-    @NonNull
-	@OneToOne
-    private Produto produto;
+	private Long id;
 
-    @Setter
-    @NonNull
-    private Integer quantidade;
- 
+	@NonNull
+	@OneToOne
+	private Produto produto;
+
+	@Setter
+	@NonNull
+	private Integer quantidade;
+
+	public BigDecimal getSubtotal() {
+		BigDecimal numItens = new BigDecimal(getQuantidade());
+		return getProduto().getPreco().multiply(numItens);
+	}
+
 }

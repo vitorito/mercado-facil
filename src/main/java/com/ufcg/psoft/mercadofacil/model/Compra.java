@@ -1,7 +1,8 @@
 package com.ufcg.psoft.mercadofacil.model;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -11,49 +12,41 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Entity
+@Getter
+@NoArgsConstructor
+@RequiredArgsConstructor
 public class Compra {
-
-	static final String FORMATO_DATA = "dd/MM/yyyy HH:mm:ss";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@NonNull
 	@ManyToOne
 	Cliente cliente;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ItemDoCarrinho> produtos;
+	@NonNull
+	@Getter(AccessLevel.NONE)
+	@OneToMany(cascade = CascadeType.ALL)
+	private List<ItemCarrinho> produtos;
 
-	private String data;
+	@NonNull
+	@OneToOne
+	private Pagamento pagamento;
 
-	public Compra() {
-	}
+	private LocalDateTime data = LocalDateTime.now(ZoneId.of("Z"));
 
-	public Compra(Cliente cliente, List<ItemDoCarrinho> produtos) {
-		this.cliente = cliente;
-		this.produtos = produtos;
-
-		defineData();
-	}
-
-	public Cliente getCliente() {
-		return cliente;
-	}
-
-	public List<ItemDoCarrinho> getProdutos() {
-		return produtos;
-	}
-
-	public String getData() {
-		return this.data;
-	}
-
-	private void defineData() {
-		SimpleDateFormat sdf = new SimpleDateFormat(Compra.FORMATO_DATA);
-		this.data = sdf.format(new Date());
+	public List<ItemCarrinho> getProdutos() {
+		return new ArrayList<>(produtos);
 	}
 
 }

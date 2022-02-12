@@ -1,52 +1,62 @@
 package com.ufcg.psoft.mercadofacil.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ufcg.psoft.mercadofacil.exception.ErroCarrinho;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+
 @Entity
+@ToString
+@NoArgsConstructor
+@RequiredArgsConstructor
 public class Carrinho {
 
 	@Id
+	@Getter
+	@NonNull
+	@JsonIgnore
 	private Long id;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ItemDoCarrinho> produtos;
+	@OneToMany(cascade = CascadeType.ALL)
+	private List<ItemCarrinho> produtos = new ArrayList<>();
 
-	public Carrinho() {
-	}
-
-	public Carrinho(Long id) {
-		this.id = id;
-		this.produtos = new ArrayList<>();
-	}
-
-	public List<ItemDoCarrinho> getProdutos() {
+	public List<ItemCarrinho> getItens() {
 		return new ArrayList<>(produtos);
 	}
 
-	public void adicionaProdutos(Produto produto, int numDeItens) {
-		ItemDoCarrinho itemDoCarrinho = getItemDoCarrinho(produto);
+	public void adicionaProdutos(Produto produto, int quantidade) {
+		Optional<ItemCarrinho> itemOptional = getItemDoCarrinho(produto);
 
-		if (itemDoCarrinho != null) {
-			int novaQuantidadeDeProdutos = itemDoCarrinho.getNumDeItens() + numDeItens;
-			itemDoCarrinho.setNumDeItens(novaQuantidadeDeProdutos);
+		if (itemOptional.isPresent()) {
+			ItemCarrinho item = itemOptional.get();
+			int novaQuantidade = item.getQuantidade() + quantidade;
+			item.setQuantidade(novaQuantidade);
 			return;
 		}
 
-		produtos.add(new ItemDoCarrinho(produto, numDeItens));
+		produtos.add(new ItemCarrinho(produto, quantidade));
 	}
 
-	public void removeProdutos(Produto produto, int numDeItens) {
-		ItemDoCarrinho itemDoCarrinho = getItemDoCarrinho(produto);
-		int novaQuantidadeDeProdutos = itemDoCarrinho.getNumDeItens() - numDeItens;
+	public void removeProduto(Produto produto, int quantidade) {
+		ItemCarrinho itemDoCarrinho = assertTemProduto(produto);
+		int novaQuantidade = itemDoCarrinho.getQuantidade() - quantidade;
 
-		if (novaQuantidadeDeProdutos > 0) {
-			itemDoCarrinho.setNumDeItens(novaQuantidadeDeProdutos);
+		if (novaQuantidade > 0) {
+			itemDoCarrinho.setQuantidade(novaQuantidade);
 			return;
 		}
 
@@ -57,35 +67,36 @@ public class Carrinho {
 		produtos.clear();
 	}
 
-	public Long getId() {
-		return id;
+	public BigDecimal getTotal() {
+		BigDecimal total = produtos.stream()
+				.map(ItemCarrinho::getSubtotal)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		return total;
 	}
 
 	public boolean containsProduto(Produto produto) {
-		return this.getItemDoCarrinho(produto) != null;
+		return this.getItemDoCarrinho(produto).isPresent();
+	}
+	
+	public boolean isEmpty() {
+		return this.produtos.isEmpty();
 	}
 
-	private ItemDoCarrinho getItemDoCarrinho(Produto produto) {
-		ItemDoCarrinho result = null;
-
-		for (ItemDoCarrinho item : produtos) {
-			if (item.getProduto().equals(produto)) {
-				result = item;
-				break;
-			}
-		}
-		return result;
+	public int getTotalItens() {
+		return this.produtos.stream()
+				.mapToInt(ItemCarrinho::getQuantidade)
+				.sum();
+	}
+	
+	private ItemCarrinho assertTemProduto(Produto produto) {
+		return getItemDoCarrinho(produto).orElseThrow(
+				() -> ErroCarrinho.erroCarrinhoNaoTemProduto());
 	}
 
-	@Override
-	public String toString() {
-		String produtosToStr = "";
-
-		for (ItemDoCarrinho item : produtos) {
-			produtosToStr += item.getProduto().toString() + "\n";
-		}
-
-		return "Carrinho id=" + id + "\nprodutos=" + produtosToStr;
+	private Optional<ItemCarrinho> getItemDoCarrinho(Produto produto) {
+		return this.produtos.stream()
+				.filter(item -> item.getProduto().equals(produto))
+				.findAny();
 	}
 
 }

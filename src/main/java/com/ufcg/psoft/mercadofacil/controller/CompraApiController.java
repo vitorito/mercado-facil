@@ -3,28 +3,21 @@ package com.ufcg.psoft.mercadofacil.controller;
 import java.util.List;
 import java.util.Optional;
 
-import com.ufcg.psoft.mercadofacil.model.Carrinho;
-import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Compra;
-import com.ufcg.psoft.mercadofacil.model.ItemDoCarrinho;
-import com.ufcg.psoft.mercadofacil.model.ItemInsuficienteNoEstoque;
-import com.ufcg.psoft.mercadofacil.model.Produto;
-import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
-import com.ufcg.psoft.mercadofacil.service.ClienteService;
+import com.ufcg.psoft.mercadofacil.model.FormaDePagamento;
 import com.ufcg.psoft.mercadofacil.service.CompraService;
-import com.ufcg.psoft.mercadofacil.service.LoteService;
-import com.ufcg.psoft.mercadofacil.service.ProdutoService;
-import com.ufcg.psoft.mercadofacil.util.ErroCarrinho;
-import com.ufcg.psoft.mercadofacil.util.ErroCliente;
-import com.ufcg.psoft.mercadofacil.util.ErroCompra;
+import com.ufcg.psoft.mercadofacil.service.PagamentoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -32,90 +25,53 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class CompraApiController {
 
-	@Autowired
-	ClienteService clienteService;
+	private static final String MIN_DATA = "1970-01-01";
 
-	@Autowired
-	CarrinhoService carrinhoService;
+	private static final String MAX_DATA = "9999-12-31";
 
 	@Autowired
 	CompraService compraService;
 
 	@Autowired
-	LoteService loteService;
+	PagamentoService pagamentoService;
 
-	@Autowired
-	ProdutoService produtoService;
-
-	@RequestMapping(value = "/cliente/{id}/compra", method = RequestMethod.POST)
-	public ResponseEntity<?> finalizaCompra(@PathVariable("id") long idCliente) {
-
-		Optional<Cliente> clienteOp = clienteService.getClienteById(idCliente);
-
-		if (!clienteOp.isPresent()) {
-			return ErroCliente.erroClienteNaoEncontrado(idCliente);
+	@PostMapping("/cliente/{id}/compra")
+	@ResponseStatus(HttpStatus.OK)
+	public Compra finalizaCompra(@PathVariable("id") Long idCliente,
+			@RequestBody(required = false) String formaDePagamento) {
+		if (formaDePagamento == null) {
+			formaDePagamento = "BOLETO";
 		}
-
-		long idCarrinho = clienteOp.get().getCpf();
-		Optional<Carrinho> carrinhoOp = carrinhoService.getCarrinhoById(idCarrinho);
-
-		if (!carrinhoOp.isPresent()) {
-			return ErroCarrinho.erroCarrinhoNaoEncontrado(idCliente);
-		}
-
-		Carrinho carrinho = carrinhoOp.get();
-		List<ItemDoCarrinho> produtos = carrinho.getProdutos();
-
-		List<Produto> produtosIndisponiveis = produtoService.checaDisponibilidade(produtos);
-
-		if (!produtosIndisponiveis.isEmpty()) {
-			return ErroCompra.erroCrompraProdutosIndisponiveis(produtosIndisponiveis);
-		}
-
-		List<ItemInsuficienteNoEstoque> itensInsuficientes = loteService.temNoEstoque(produtos);
-
-		if (!itensInsuficientes.isEmpty()) {
-			return ErroCompra.erroCompraEstoqueInsuficiente(itensInsuficientes);
-		}
-
-		Compra compra = compraService.criaCompra(clienteOp.get(), carrinho);
-		compraService.salvaCompra(compra);
-		loteService.retiraItensDoEstoque(produtos);
-		carrinhoService.removeTodosProdutos(carrinho);
-
-		return new ResponseEntity<Compra>(compra, HttpStatus.OK);
+		return compraService.finalizaCompra(idCliente, formaDePagamento);
 	}
 
-	@RequestMapping(value = "/cliente/{id}/compras", method = RequestMethod.GET)
-	public ResponseEntity<?> listaCompras(@PathVariable("id") long idCliente) {
-		Optional<Cliente> clienteOp = clienteService.getClienteById(idCliente);
-
-		if (!clienteOp.isPresent()) {
-			return ErroCliente.erroClienteNaoEncontrado(idCliente);
+	@GetMapping("/cliente/{id}/compra")
+	@ResponseStatus(HttpStatus.OK)
+	public List<Compra> listaCompras(
+			@PathVariable("id") Long idCliente,
+			@RequestParam(name = "do_dia") Optional<String> dia,
+			@RequestParam(name = "depois_de", defaultValue = MIN_DATA) String inicio,
+			@RequestParam(name = "antes_de", defaultValue = MAX_DATA) String fim) {
+		// se um dia for passado, sao retornadas as compras feitas nesse dia
+		if (dia.isPresent()) {
+			inicio = dia.get();
+			fim = dia.get();
 		}
-
-		List<Compra> compras = compraService.listaCompras(clienteOp.get());
-
-		return new ResponseEntity<List<Compra>>(compras, HttpStatus.OK);
+		return compraService.listaCompras(idCliente, inicio, fim);
 	}
 
-	@RequestMapping(value = "/cliente/{idCliente}/compra/{idCompra}", method = RequestMethod.GET)
-	public ResponseEntity<?> getCompra(
-			@PathVariable("idCliente") long idCliente, @PathVariable("idCompra") long idCompra) {
+	@GetMapping("/cliente/{id}/compra/{idCompra}")
+	@ResponseStatus(HttpStatus.OK)
+	public Compra getCompra(
+			@PathVariable("id") Long idCliente,
+			@PathVariable("idCompra") Long idCompra) {
+		return compraService.getCompraById(idCliente, idCompra);
+	}
 
-		Optional<Cliente> clienteOp = clienteService.getClienteById(idCliente);
-
-		if (!clienteOp.isPresent()) {
-			return ErroCliente.erroClienteNaoEncontrado(idCliente);
-		}
-
-		Optional<Compra> compraOp = compraService.getCompraById(idCompra);
-
-		if (!compraOp.isPresent()) {
-			return ErroCompra.erroClienteNaoPossuiCompra(idCliente, idCompra);
-		}
-
-		return new ResponseEntity<Compra>(compraOp.get(), HttpStatus.OK);
+	@GetMapping("/api/compra/pagamento")
+	@ResponseStatus(HttpStatus.OK)
+	public FormaDePagamento[] listaFormasDePagamento() {
+		return pagamentoService.listaFormasDePagamento();
 	}
 
 }

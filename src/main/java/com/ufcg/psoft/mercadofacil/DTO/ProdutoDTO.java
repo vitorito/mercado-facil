@@ -2,55 +2,31 @@ package com.ufcg.psoft.mercadofacil.DTO;
 
 import java.math.BigDecimal;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
 public class ProdutoDTO {
 
+	@NotEmpty
 	private String nome;
 
+	@NotNull
+	@PositiveOrZero
 	private BigDecimal preco;
 
+	@NotEmpty
 	private String codigoBarra;
 
+	@NotEmpty
 	private String fabricante;
 	
+	@NotEmpty
 	private String categoria;
 
-	public String getNome() {
-		return nome;
-	}
-
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
-
-	public BigDecimal getPreco() {
-		return preco;
-	}
-
-	public void setPreco(BigDecimal preco) {
-		this.preco = preco;
-	}
-
-	public String getCodigoBarra() {
-		return codigoBarra;
-	}
-
-	public void setCodigoBarra(String codigoBarra) {
-		this.codigoBarra = codigoBarra;
-	}
-
-	public String getFabricante() {
-		return fabricante;
-	}
-
-	public void setFabricante(String fabricante) {
-		this.fabricante = fabricante;
-	}
-
-	public String getCategoria() {
-		return categoria;
-	}
-
-	public void setCategoria(String categoria) {
-		this.categoria = categoria;
-	}
 }

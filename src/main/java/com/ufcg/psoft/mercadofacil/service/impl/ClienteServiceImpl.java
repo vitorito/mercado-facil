@@ -83,13 +83,6 @@ public class ClienteServiceImpl implements ClienteService {
 		}
 	}
 
-	@Override
-	public void assertExisteClienteByCpf(Long cpf) {
-		if (!clienteRepository.existsByCpf(cpf)) {
-			throw ErroCliente.erroClienteNaoEncontradoCPF();
-		}
-	}
-
 	private Cliente criaCliente(ClienteDTO clienteDTO) {
 		TipoCliente tipo = getTipoCliente(clienteDTO.getTipo());
 		Cliente cliente = Cliente.builder()

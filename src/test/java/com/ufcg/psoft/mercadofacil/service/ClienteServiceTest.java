@@ -306,24 +306,6 @@ public class ClienteServiceTest {
 		assertEquals(ErroCliente.CLIENTE_NAO_CADASTRADO_ID, erro.getMessage());
 	}
 
-	@Test
-	public void assertExisteClienteByCpfOk() {
-		setExistsByCpf(clienteSpy.getCpf(), true);
-
-		clienteService.assertExisteClienteByCpf(clienteSpy.getCpf());
-	}
-
-	@Test
-	public void assertExisteClienteByCpfRetornaErro() {
-		Long cpfInexistente = 2423L;
-		setExistsByCpf(cpfInexistente, false);
-
-		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> clienteService.assertExisteClienteByCpf(cpfInexistente));
-
-		assertEquals(ErroCliente.CLIENTE_NAO_CADASTRADO_CPF, erro.getMessage());
-	}
-
 	private Cliente geraCliente(String nome, Long cpf, int idade, String endereco, TipoCliente tipo) {
 		return Cliente.builder()
 				.nome(nome)

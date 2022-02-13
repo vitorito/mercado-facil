@@ -21,6 +21,4 @@ public interface ClienteService {
 
 	public void assertExisteClienteById(Long id);
 
-	public void assertExisteClienteByCpf(Long cpf);
-
 }

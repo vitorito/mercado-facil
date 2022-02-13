@@ -68,8 +68,7 @@ public class CompraServiceImpl implements CompraService {
 	}
 
 	@Override
-	public List<Compra> listaCompras(
-			Long idCliente, String inicio, String fim) {
+	public List<Compra> listaCompras(Long idCliente, String inicio, String fim) {
 		Cliente cliente = clienteService.getClienteById(idCliente);
 
 		LocalDateTime inicioPeriodo = converteAoInicioDoDia(inicio);
@@ -117,13 +116,11 @@ public class CompraServiceImpl implements CompraService {
 
 	private LocalDateTime converteAoInicioDoDia(String dataStr) {
 		LocalDate data = toLocalDate(dataStr);
-
 		return data.atStartOfDay();
 	}
 
 	private LocalDateTime converteAoFimDoDia(String dataStr) {
 		LocalDate data = toLocalDate(dataStr);
-
 		return data.atTime(23, 59, 59, 999999999);
 	}
 

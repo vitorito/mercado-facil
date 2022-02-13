@@ -1,5 +1,7 @@
 package com.ufcg.psoft.mercadofacil.model;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -42,5 +44,9 @@ public class Cliente {
 		this.endereco = endereco;
 		this.tipo = tipo;
 	}
+
+    public BigDecimal calculaDesconto(int totalItens) {
+        return this.tipo.calculaDesconto(totalItens);
+    }
 
 }

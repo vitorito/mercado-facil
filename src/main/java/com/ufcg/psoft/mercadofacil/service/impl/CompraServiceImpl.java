@@ -15,7 +15,6 @@ import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Pagamento;
 import com.ufcg.psoft.mercadofacil.model.Produto;
-import com.ufcg.psoft.mercadofacil.model.TipoCliente;
 import com.ufcg.psoft.mercadofacil.repository.CompraRepository;
 import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
 import com.ufcg.psoft.mercadofacil.service.ClienteService;
@@ -55,7 +54,7 @@ public class CompraServiceImpl implements CompraService {
 		assertTemEmEstoque(itens);
 
 		int totalItens = carrinho.getTotalItens();
-		BigDecimal desconto = calculaDesconto(cliente.getTipo(), totalItens);
+		BigDecimal desconto = cliente.calculaDesconto(totalItens);
 		BigDecimal totalCompra = carrinho.getTotal();
 		Pagamento pagamento = pagamentoService.geraPagamento(totalCompra, formaDePagamento, desconto);
 
@@ -134,13 +133,6 @@ public class CompraServiceImpl implements CompraService {
 		} catch (DateTimeParseException ex) {
 			throw ErroCompra.erroFormatoDeDataInvalido();
 		}
-	}
-
-	private BigDecimal calculaDesconto(TipoCliente tipoCliente, int totalItens) {
-		if (totalItens >= tipoCliente.getMinItens()) {
-			return tipoCliente.getDesconto();
-		}
-		return BigDecimal.ZERO;
 	}
 
 }

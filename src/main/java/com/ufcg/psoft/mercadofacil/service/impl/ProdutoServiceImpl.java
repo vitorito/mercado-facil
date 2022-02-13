@@ -85,7 +85,6 @@ public class ProdutoServiceImpl implements ProdutoService {
 				.preco(produtoDTO.getPreco())
 				.build();
 
-		produto.tornaDisponivel();
 		return produto;
 	}
 

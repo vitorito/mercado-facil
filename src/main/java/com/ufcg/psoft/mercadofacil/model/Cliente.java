@@ -1,8 +1,8 @@
 package com.ufcg.psoft.mercadofacil.model;
 
-import java.math.BigDecimal;
-
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,6 +34,7 @@ public class Cliente {
 
 	private String endereco;
 
+	@Enumerated(EnumType.STRING)
 	private TipoCliente tipo;
 
 	@Builder
@@ -44,9 +45,5 @@ public class Cliente {
 		this.endereco = endereco;
 		this.tipo = tipo;
 	}
-
-    public BigDecimal calculaDesconto(int totalItens) {
-        return this.tipo.calculaDesconto(totalItens);
-    }
 
 }

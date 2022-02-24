@@ -1,35 +1,25 @@
 package com.ufcg.psoft.mercadofacil.model;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 
-import lombok.Getter;
+import com.ufcg.psoft.mercadofacil.exception.ErroCliente;
 
-@Getter
 public enum TipoCliente {
 
-	NORMAL(0, 0),
-	ESPECIAL(0.01, 10),
-	PREMIUM(0.01, 5);
+	NORMAL,
+	ESPECIAL,
+	PREMIUM;
 
-	BigDecimal desconto;
-
-	int minItens;
-
-	TipoCliente(double desconto, int minItens) {
-		this.desconto = BigDecimal.valueOf(desconto);
-		this.minItens = minItens;
+	public static TipoCliente get(String tipo) {
+		try {
+			return valueOf(tipo.toUpperCase());
+		} catch (IllegalArgumentException ex) {
+			throw ErroCliente.erroTipoInvalidoDeCliente();
+		}
 	}
 
 	public static String valuesToString() {
 		return Arrays.toString(values());
-	}
-
-	public BigDecimal calculaDesconto(int totalItens) {
-		if (totalItens >= this.minItens) {
-			return this.desconto;
-		}
-		return BigDecimal.ZERO;
 	}
 
 }

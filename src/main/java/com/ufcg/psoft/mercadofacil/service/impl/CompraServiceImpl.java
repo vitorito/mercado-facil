@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.ufcg.psoft.mercadofacil.exception.ErroCompra;
+import com.ufcg.psoft.mercadofacil.model.CalculoDeDescontoPorTipoCliente;
+import com.ufcg.psoft.mercadofacil.model.CalculoDeDescontoFactory;
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Compra;
@@ -54,7 +56,8 @@ public class CompraServiceImpl implements CompraService {
 		assertTemEmEstoque(itens);
 
 		int totalItens = carrinho.getTotalItens();
-		BigDecimal desconto = cliente.calculaDesconto(totalItens);
+		CalculoDeDescontoPorTipoCliente calculoDesconto = CalculoDeDescontoFactory.create(cliente.getTipo());
+		BigDecimal desconto = calculoDesconto.calculaDesconto(totalItens);
 		BigDecimal totalCompra = carrinho.getTotal();
 		Pagamento pagamento = pagamentoService.geraPagamento(totalCompra, formaDePagamento, desconto);
 

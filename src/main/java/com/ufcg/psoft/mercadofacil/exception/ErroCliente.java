@@ -12,7 +12,8 @@ public class ErroCliente {
 
 	public static final String CLIENTE_JA_CADASTRADO = "Cliente com esse CPF já cadastrado.";
 
-	public static final String TIPO_CLIENTE_INVALIDO = "Tipo de cliente inválido.Tipos válidos: ";
+	public static final String TIPO_CLIENTE_INVALIDO = "Tipo de cliente inválido.Tipos válidos: "
+			+ TipoCliente.valuesToString();
 
 	public static CustomErrorType erroClienteNaoEncontradoId() {
 		return new CustomErrorType(CLIENTE_NAO_CADASTRADO_ID, HttpStatus.NOT_FOUND);
@@ -27,10 +28,7 @@ public class ErroCliente {
 	}
 
 	public static CustomErrorType erroTipoInvalidoDeCliente() {
-		String tiposValidos = TipoCliente.valuesToString();
-		String message = TIPO_CLIENTE_INVALIDO + tiposValidos;
-		
-		return new CustomErrorType(message, HttpStatus.BAD_REQUEST);
+		return new CustomErrorType(TIPO_CLIENTE_INVALIDO, HttpStatus.BAD_REQUEST);
 	}
 
 }

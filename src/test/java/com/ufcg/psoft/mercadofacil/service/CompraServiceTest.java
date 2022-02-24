@@ -25,6 +25,7 @@ import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Pagamento;
 import com.ufcg.psoft.mercadofacil.model.Produto;
+import com.ufcg.psoft.mercadofacil.model.TipoCliente;
 import com.ufcg.psoft.mercadofacil.repository.CompraRepository;
 import com.ufcg.psoft.mercadofacil.service.impl.CompraServiceImpl;
 
@@ -85,7 +86,7 @@ public class CompraServiceTest {
 		when(produtoMock.isDisponivel()).thenReturn(true);
 		when(loteService.temEmEstoque(itens)).thenReturn(List.of());
 		when(carrinhoMock.getTotalItens()).thenReturn(2);
-		when(clienteMock.calculaDesconto(2)).thenReturn(BigDecimal.ZERO);
+		when(clienteMock.getTipo()).thenReturn(TipoCliente.NORMAL);
 		when(carrinhoMock.getTotal()).thenReturn(totalCompra);
 		when(pagamentoService.geraPagamento(
 				totalCompra, formaDePagamento, BigDecimal.ZERO))
@@ -116,7 +117,7 @@ public class CompraServiceTest {
 		when(produtoMock.isDisponivel()).thenReturn(true);
 		when(loteService.temEmEstoque(itens)).thenReturn(List.of());
 		when(carrinhoMock.getTotalItens()).thenReturn(4);
-		when(clienteMock.calculaDesconto(4)).thenReturn(BigDecimal.ZERO);
+		when(clienteMock.getTipo()).thenReturn(TipoCliente.NORMAL);
 		when(carrinhoMock.getTotal()).thenReturn(totalCompra);
 		when(pagamentoService.geraPagamento(
 				totalCompra, formaDePagamento, BigDecimal.ZERO))
@@ -147,7 +148,7 @@ public class CompraServiceTest {
 		when(produtoMock.isDisponivel()).thenReturn(true);
 		when(loteService.temEmEstoque(itens)).thenReturn(List.of());
 		when(carrinhoMock.getTotalItens()).thenReturn(6);
-		when(clienteMock.calculaDesconto(6)).thenReturn(BigDecimal.ZERO);
+		when(clienteMock.getTipo()).thenReturn(TipoCliente.NORMAL);
 		when(carrinhoMock.getTotal()).thenReturn(totalCompra);
 		when(pagamentoService.geraPagamento(
 				totalCompra, formaDePagamento, BigDecimal.ZERO))

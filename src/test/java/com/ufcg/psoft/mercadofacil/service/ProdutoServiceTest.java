@@ -115,6 +115,7 @@ public class ProdutoServiceTest {
 
 		Produto produto = produtoService.cadastraProduto(produtoDTO);
 
+		assertFalse(produto.isDisponivel());
 		assertEquals(produtoDTO.getNome(), produto.getNome());
 		assertEquals(produtoDTO.getCodigoBarra(), produto.getCodigoBarra());
 		assertEquals(produtoDTO.getFabricante(), produto.getFabricante());

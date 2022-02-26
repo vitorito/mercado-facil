@@ -15,7 +15,6 @@ import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Pagamento;
 import com.ufcg.psoft.mercadofacil.model.Produto;
-import com.ufcg.psoft.mercadofacil.model.TipoCliente;
 import com.ufcg.psoft.mercadofacil.repository.CompraRepository;
 import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
 import com.ufcg.psoft.mercadofacil.service.ClienteService;
@@ -55,7 +54,7 @@ public class CompraServiceImpl implements CompraService {
 		assertTemEmEstoque(itens);
 
 		int totalItens = carrinho.getTotalItens();
-		BigDecimal desconto = calculaDesconto(cliente.getTipo(), totalItens);
+		BigDecimal desconto = cliente.calculaDesconto(totalItens);
 		BigDecimal totalCompra = carrinho.getTotal();
 		Pagamento pagamento = pagamentoService.geraPagamento(totalCompra, formaDePagamento, desconto);
 
@@ -69,8 +68,7 @@ public class CompraServiceImpl implements CompraService {
 	}
 
 	@Override
-	public List<Compra> listaCompras(
-			Long idCliente, String inicio, String fim) {
+	public List<Compra> listaCompras(Long idCliente, String inicio, String fim) {
 		Cliente cliente = clienteService.getClienteById(idCliente);
 
 		LocalDateTime inicioPeriodo = converteAoInicioDoDia(inicio);
@@ -118,13 +116,11 @@ public class CompraServiceImpl implements CompraService {
 
 	private LocalDateTime converteAoInicioDoDia(String dataStr) {
 		LocalDate data = toLocalDate(dataStr);
-
 		return data.atStartOfDay();
 	}
 
 	private LocalDateTime converteAoFimDoDia(String dataStr) {
 		LocalDate data = toLocalDate(dataStr);
-
 		return data.atTime(23, 59, 59, 999999999);
 	}
 
@@ -134,13 +130,6 @@ public class CompraServiceImpl implements CompraService {
 		} catch (DateTimeParseException ex) {
 			throw ErroCompra.erroFormatoDeDataInvalido();
 		}
-	}
-
-	private BigDecimal calculaDesconto(TipoCliente tipoCliente, int totalItens) {
-		if (totalItens >= tipoCliente.getMinItens()) {
-			return tipoCliente.getDesconto();
-		}
-		return BigDecimal.ZERO;
 	}
 
 }

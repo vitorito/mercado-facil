@@ -52,7 +52,7 @@ public class Carrinho {
 	}
 
 	public void removeProduto(Produto produto, int quantidade) {
-		ItemCarrinho itemDoCarrinho = assertTemProduto(produto);
+		ItemCarrinho itemDoCarrinho = assertedGetItemDoCarrinho(produto);
 		int novaQuantidade = itemDoCarrinho.getQuantidade() - quantidade;
 
 		if (novaQuantidade > 0) {
@@ -88,7 +88,7 @@ public class Carrinho {
 				.sum();
 	}
 	
-	private ItemCarrinho assertTemProduto(Produto produto) {
+	private ItemCarrinho assertedGetItemDoCarrinho(Produto produto) {
 		return getItemDoCarrinho(produto).orElseThrow(
 				() -> ErroCarrinho.erroCarrinhoNaoTemProduto());
 	}

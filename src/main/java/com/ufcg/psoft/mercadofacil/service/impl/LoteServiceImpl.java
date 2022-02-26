@@ -48,23 +48,11 @@ public class LoteServiceImpl implements LoteService {
 	}
 
 	@Override
-	public void retiraItensDoEstoque(List<ItemCarrinho> produtos) {
-		for (ItemCarrinho item: produtos) {
-			Produto produto = item.getProduto();
-			List<Lote> lotes = getLotesByProduto(produto);
-
-			int novaQntdDeProdutos = item.getQuantidade();
-			for (Lote lote : lotes) {
-				novaQntdDeProdutos = lote.getQuantidade() - Math.abs(novaQntdDeProdutos);
-				if (novaQntdDeProdutos > 0) {
-					lote.setQuantidade(novaQntdDeProdutos);
-					salvaLote(lote);
-					break;
-				}
-				removeLote(lote);
-			}
-			if (novaQntdDeProdutos <= 0)
-				produtoService.tornaIndisponivel(produto);
+	public void retiraItensDoEstoque(List<ItemCarrinho> itens) {
+		for (ItemCarrinho item: itens) {
+			int produtosEmEstoque = removeProdutoDoEstoque(item);
+			if (produtosEmEstoque <= 0)
+				produtoService.tornaIndisponivel(item.getProduto());
 		}
 	}
 
@@ -90,6 +78,21 @@ public class LoteServiceImpl implements LoteService {
 
 	private void removeLote(Lote lote) {
 		loteRepository.delete(lote);
+	}
+
+	private int removeProdutoDoEstoque(ItemCarrinho item) {
+		List<Lote> lotes = getLotesByProduto(item.getProduto());
+		int quantidadeDeProdutos = item.getQuantidade();
+		for (Lote lote : lotes) {
+			quantidadeDeProdutos = lote.getQuantidade() - Math.abs(quantidadeDeProdutos);
+			if (quantidadeDeProdutos > 0) {
+				lote.setQuantidade(quantidadeDeProdutos);
+				salvaLote(lote);
+				break;
+			}
+			removeLote(lote);
+		}
+		return quantidadeDeProdutos;
 	}
 
 	/**

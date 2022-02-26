@@ -57,4 +57,8 @@ public class Produto {
 		this.isDisponivel = false;
 	}
 
+    public BigDecimal getSubtotal(Integer quantidade) {
+        return this.preco.multiply(BigDecimal.valueOf(quantidade));
+    }
+
 }

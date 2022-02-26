@@ -25,4 +25,11 @@ public enum TipoCliente {
 		return Arrays.toString(values());
 	}
 
+	public BigDecimal calculaDesconto(int totalItens) {
+		if (totalItens >= this.minItens) {
+			return this.desconto;
+		}
+		return BigDecimal.ZERO;
+	}
+
 }

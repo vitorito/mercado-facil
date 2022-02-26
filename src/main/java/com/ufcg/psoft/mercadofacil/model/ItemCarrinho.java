@@ -33,8 +33,7 @@ public class ItemCarrinho {
 	private Integer quantidade;
 
 	public BigDecimal getSubtotal() {
-		BigDecimal numItens = new BigDecimal(getQuantidade());
-		return getProduto().getPreco().multiply(numItens);
+		return produto.getSubtotal(quantidade);
 	}
 
 }

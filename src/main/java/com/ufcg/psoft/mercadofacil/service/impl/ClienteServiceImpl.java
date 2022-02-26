@@ -66,7 +66,7 @@ public class ClienteServiceImpl implements ClienteService {
 			throw ErroCliente.erroClienteNaoEncontradoCPF();
 		}
 
-		TipoCliente tipo = getTipoCliente(clienteDTO.getTipo());
+		TipoCliente tipo = TipoCliente.get(clienteDTO.getTipo());
 		cliente.setTipo(tipo);
 		cliente.setNome(clienteDTO.getNome());
 		cliente.setIdade(clienteDTO.getIdade());
@@ -84,7 +84,7 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	private Cliente criaCliente(ClienteDTO clienteDTO) {
-		TipoCliente tipo = getTipoCliente(clienteDTO.getTipo());
+		TipoCliente tipo = TipoCliente.get(clienteDTO.getTipo());
 		Cliente cliente = Cliente.builder()
 				.nome(clienteDTO.getNome())
 				.cpf(clienteDTO.getCpf())
@@ -94,14 +94,6 @@ public class ClienteServiceImpl implements ClienteService {
 				.build();
 
 		return cliente;
-	}
-
-	private TipoCliente getTipoCliente(String tipo) {
-		try {
-			return TipoCliente.valueOf(tipo.toUpperCase());
-		} catch (IllegalArgumentException ex) {
-			throw ErroCliente.erroTipoInvalidoDeCliente();
-		}
 	}
 
 	private void salvaCliente(Cliente cliente) {

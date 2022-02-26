@@ -221,8 +221,7 @@ public class ClienteServiceTest {
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
 				() -> clienteService.cadastraCliente(clienteDtoMock));
 
-		String mensagemErro = ErroCliente.TIPO_CLIENTE_INVALIDO + TipoCliente.valuesToString();
-		assertEquals(mensagemErro, erro.getMessage());
+		assertEquals(ErroCliente.TIPO_CLIENTE_INVALIDO, erro.getMessage());
 
 		verifyNoMoreInteractions(clienteDtoMock);
 		verify(carrinhoService, never()).cadastraCarrinho(any());

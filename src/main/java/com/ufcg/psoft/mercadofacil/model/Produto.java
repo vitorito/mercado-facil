@@ -3,6 +3,8 @@ package com.ufcg.psoft.mercadofacil.model;
 import java.math.BigDecimal;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,14 +40,18 @@ public class Produto {
 
 	private boolean isDisponivel;
 
+	@Enumerated(EnumType.STRING)
+	private TipoTransporte tipoTransporte;
+
 	@Builder
 	private Produto(String nome, String codigoBarra, String fabricante, String categoria,
-			BigDecimal preco) {
+			BigDecimal preco, TipoTransporte tipoTransporte) {
 		this.nome = nome;
 		this.codigoBarra = codigoBarra;
 		this.fabricante = fabricante;
 		this.categoria = categoria;
 		this.preco = preco;
+		this.tipoTransporte = tipoTransporte;
 		this.isDisponivel = false;
 	}
 

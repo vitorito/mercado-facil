@@ -7,9 +7,10 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.ufcg.psoft.mercadofacil.DTO.CompraDTO;
 import com.ufcg.psoft.mercadofacil.exception.ErroCompra;
-import com.ufcg.psoft.mercadofacil.model.CalculoDeDescontoPorTipoCliente;
 import com.ufcg.psoft.mercadofacil.model.CalculoDeDescontoFactory;
+import com.ufcg.psoft.mercadofacil.model.CalculoDeDescontoPorTipoCliente;
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Compra;
@@ -46,7 +47,7 @@ public class CompraServiceImpl implements CompraService {
 	private LoteService loteService;
 
 	@Override
-	public Compra finalizaCompra(Long idCliente, String formaDePagamento) {
+	public Compra finalizaCompra(Long idCliente, CompraDTO compraDTO) {
 		Cliente cliente = clienteService.getClienteById(idCliente);
 		Long idCarrinho = cliente.getCpf();
 		Carrinho carrinho = carrinhoService.getCarrinhoById(idCarrinho);
@@ -59,7 +60,7 @@ public class CompraServiceImpl implements CompraService {
 		CalculoDeDescontoPorTipoCliente calculoDesconto = CalculoDeDescontoFactory.create(cliente.getTipo());
 		BigDecimal desconto = calculoDesconto.calculaDesconto(totalItens);
 		BigDecimal totalCompra = carrinho.getTotal();
-		Pagamento pagamento = pagamentoService.geraPagamento(totalCompra, formaDePagamento, desconto);
+		Pagamento pagamento = pagamentoService.geraPagamento(totalCompra, compraDTO.getFormaDePagamento(), desconto);
 
 		loteService.retiraItensDoEstoque(itens);
 		carrinhoService.removeTodosProdutos(carrinho);

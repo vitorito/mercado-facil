@@ -28,5 +28,8 @@ public class ProdutoDTO {
 	
 	@NotEmpty
 	private String categoria;
+	
+	@NotEmpty
+	private String tipoTransporte;
 
 }

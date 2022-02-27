@@ -5,6 +5,7 @@ import java.util.List;
 import com.ufcg.psoft.mercadofacil.DTO.ProdutoDTO;
 import com.ufcg.psoft.mercadofacil.exception.ErroProduto;
 import com.ufcg.psoft.mercadofacil.model.Produto;
+import com.ufcg.psoft.mercadofacil.model.TipoTransporte;
 import com.ufcg.psoft.mercadofacil.repository.ProdutoRepository;
 import com.ufcg.psoft.mercadofacil.service.ProdutoService;
 
@@ -77,18 +78,22 @@ public class ProdutoServiceImpl implements ProdutoService {
 	}
 
 	private Produto criaProduto(ProdutoDTO produtoDTO) {
+		TipoTransporte tipoTransporte  = TipoTransporte.get(produtoDTO.getTipoTransporte());
 		Produto produto = Produto.builder()
 				.nome(produtoDTO.getNome())
 				.codigoBarra(produtoDTO.getCodigoBarra())
 				.fabricante(produtoDTO.getFabricante())
 				.categoria(produtoDTO.getCategoria())
 				.preco(produtoDTO.getPreco())
+				.tipoTransporte(tipoTransporte)
 				.build();
 
 		return produto;
 	}
 
 	private void atualizaProduto(ProdutoDTO produtoDTO, Produto produto) {
+		TipoTransporte tipoTransporte  = TipoTransporte.get(produtoDTO.getTipoTransporte());
+		produto.setTipoTransporte(tipoTransporte);
 		produto.setNome(produtoDTO.getNome());
 		produto.setPreco(produtoDTO.getPreco());
 		produto.setFabricante(produtoDTO.getFabricante());

@@ -2,6 +2,7 @@ package com.ufcg.psoft.mercadofacil.service;
 
 import java.util.List;
 
+import com.ufcg.psoft.mercadofacil.DTO.CompraDTO;
 import com.ufcg.psoft.mercadofacil.model.Compra;
 
 public interface CompraService {
@@ -10,6 +11,6 @@ public interface CompraService {
 
 	Compra getCompraById(Long idCliente, Long idCompra);
 
-	Compra finalizaCompra(Long idCliente, String formaDePagamento);
+	Compra finalizaCompra(Long idCliente, CompraDTO compraDTO);
 
 }

@@ -4,10 +4,13 @@ import java.math.BigDecimal;
 
 import javax.persistence.Entity;
 
+import lombok.NoArgsConstructor;
+
 @Entity
+@NoArgsConstructor
 public class EntregaRetirada extends Entrega {
 
-    public EntregaRetirada(String destino, int distanciaEmMetros) {
+    public EntregaRetirada(String destino, double distanciaEmMetros) {
         super(destino, distanciaEmMetros, TipoEntrega.RETIRADA);
     }
 

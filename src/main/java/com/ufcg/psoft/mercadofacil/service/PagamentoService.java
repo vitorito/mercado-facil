@@ -9,6 +9,6 @@ public interface PagamentoService {
 
 	FormaDePagamento[] listaFormasDePagamento();
 
-	Pagamento geraPagamento(BigDecimal totalCompra, String formaDePagamento, BigDecimal desconto); 
+	Pagamento geraPagamento(BigDecimal totalCompra, String formaDePagamento, BigDecimal desconto, BigDecimal custoEntrega); 
 	
 }

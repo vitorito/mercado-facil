@@ -43,9 +43,8 @@ public class CompraApiController {
 		if (compraDTO.getFormaDePagamento() == null) {
 			compraDTO.setFormaDePagamento("BOLETO");
 		}
-		// return compraService.finalizaCompra(idCliente, compraDTO);
-		System.out.println(compraDTO);
-		return null;
+		
+		return compraService.finalizaCompra(idCliente, compraDTO);
 	}
 
 	@GetMapping("/cliente/{id}/compra")

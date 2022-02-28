@@ -36,21 +36,33 @@ public class Pagamento {
 
 	private BigDecimal totalPago;
 
+	private BigDecimal valorEntrega;
+
 	@Builder
 	private Pagamento(BigDecimal totalCompra, FormaDePagamento formaDePagamento,
-			BigDecimal taxaDesconto) {
+			BigDecimal taxaDesconto, BigDecimal valorEntrega) {
 		this.formaDePagamento = formaDePagamento;
 		this.totalCompra = totalCompra;
 		this.taxaDesconto = taxaDesconto;
 		this.taxaJuros = formaDePagamento.getJuros();
+		this.valorEntrega = valorEntrega;
 
+		calculaValorJuros();
+		calculaValorDesconto();
 		calculaTotalPago();
 	}
 
-	private void calculaTotalPago() {
-		this.valorJuros = totalCompra.multiply(taxaJuros);
+	private void calculaValorDesconto() {
 		this.valorDesconto = totalCompra.multiply(taxaDesconto);
-		this.totalPago = totalCompra.add(valorJuros).subtract(valorDesconto);
+	}
+
+	private void calculaValorJuros() {
+		this.valorJuros = totalCompra.multiply(taxaJuros);
+	}
+
+	private void calculaTotalPago() {
+		BigDecimal totalParcial = totalCompra.add(valorJuros).subtract(valorDesconto);
+		this.totalPago = totalParcial.add(valorEntrega);
 	}
 
 }

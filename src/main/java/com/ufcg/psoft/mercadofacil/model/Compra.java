@@ -38,10 +38,14 @@ public class Compra {
 	@Getter(AccessLevel.NONE)
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<ItemCarrinho> produtos;
-
+	
 	@NonNull
 	@OneToOne
 	private Pagamento pagamento;
+
+	@NonNull
+	@OneToOne(cascade = CascadeType.ALL)
+	private Entrega entrega;
 
 	private LocalDateTime data = LocalDateTime.now(ZoneId.of("Z"));
 

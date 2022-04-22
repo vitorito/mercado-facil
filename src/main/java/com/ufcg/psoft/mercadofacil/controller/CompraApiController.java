@@ -3,6 +3,7 @@ package com.ufcg.psoft.mercadofacil.controller;
 import java.util.List;
 import java.util.Optional;
 
+import com.ufcg.psoft.mercadofacil.DTO.CompraDTO;
 import com.ufcg.psoft.mercadofacil.model.Compra;
 import com.ufcg.psoft.mercadofacil.model.FormaDePagamento;
 import com.ufcg.psoft.mercadofacil.service.CompraService;
@@ -38,11 +39,12 @@ public class CompraApiController {
 	@PostMapping("/cliente/{id}/compra")
 	@ResponseStatus(HttpStatus.OK)
 	public Compra finalizaCompra(@PathVariable("id") Long idCliente,
-			@RequestBody(required = false) String formaDePagamento) {
-		if (formaDePagamento == null) {
-			formaDePagamento = "BOLETO";
+			@RequestBody CompraDTO compraDTO) {
+		if (compraDTO.getFormaDePagamento() == null) {
+			compraDTO.setFormaDePagamento("BOLETO");
 		}
-		return compraService.finalizaCompra(idCliente, formaDePagamento);
+		
+		return compraService.finalizaCompra(idCliente, compraDTO);
 	}
 
 	@GetMapping("/cliente/{id}/compra")
@@ -68,7 +70,7 @@ public class CompraApiController {
 		return compraService.getCompraById(idCliente, idCompra);
 	}
 
-	@GetMapping("/api/compra/pagamento")
+	@GetMapping("/compra/pagamento")
 	@ResponseStatus(HttpStatus.OK)
 	public FormaDePagamento[] listaFormasDePagamento() {
 		return pagamentoService.listaFormasDePagamento();

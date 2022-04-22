@@ -36,9 +36,10 @@ public class PagamentoServiceTest {
 		BigDecimal totalCompra = BigDecimal.valueOf(10);
 		BigDecimal desconto = BigDecimal.valueOf(0.1);
 		String formaDePagamento = "credito";
+        BigDecimal custoEntrega = BigDecimal.TEN;
 
 		Pagamento pagamento = pagamentoService.geraPagamento(
-				totalCompra, formaDePagamento, desconto);
+				totalCompra, formaDePagamento, desconto, custoEntrega);
 
 		assertEquals(totalCompra, pagamento.getTotalCompra());
 		assertEquals(FormaDePagamento.CREDITO, pagamento.getFormaDePagamento());
@@ -46,7 +47,7 @@ public class PagamentoServiceTest {
 		assertEquals(1.0, pagamento.getValorDesconto().doubleValue());
 		assertEquals(0.05, pagamento.getTaxaJuros().doubleValue());
 		assertEquals(0.5, pagamento.getValorJuros().doubleValue());
-		assertEquals(9.5, pagamento.getTotalPago().doubleValue());
+		assertEquals(19.5, pagamento.getTotalPago().doubleValue());
 		verify(pagamentoRepository, times(1)).save(pagamento);
 	}
 
@@ -55,12 +56,12 @@ public class PagamentoServiceTest {
 		BigDecimal totalCompra = BigDecimal.valueOf(10);
 		BigDecimal desconto = BigDecimal.valueOf(0.1);
 		String formaDePagamento = "FormaInvalida";
+        BigDecimal custoEntrega = BigDecimal.TEN;
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> pagamentoService.geraPagamento(totalCompra, formaDePagamento, desconto));
+				() -> pagamentoService.geraPagamento(totalCompra, formaDePagamento, desconto, custoEntrega));
 
-		String errorMessage = ErroCompra.FORMA_PAGAMENTO_INVALIDA + FormaDePagamento.valuesToString();
-		assertEquals(errorMessage, erro.getMessage());
+		assertEquals(ErroCompra.FORMA_PAGAMENTO_INVALIDA, erro.getMessage());
 		verify(pagamentoRepository, never()).save(any());
 	}
 

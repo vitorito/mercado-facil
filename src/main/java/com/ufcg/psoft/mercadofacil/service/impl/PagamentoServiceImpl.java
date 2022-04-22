@@ -23,13 +23,15 @@ public class PagamentoServiceImpl implements PagamentoService {
 	}
 
 	@Override
-	public Pagamento geraPagamento(BigDecimal totalCompra, String formaPagamento, BigDecimal desconto) {
+	public Pagamento geraPagamento(BigDecimal totalCompra, String formaPagamento,
+			BigDecimal desconto, BigDecimal valorEntrega) {
 		FormaDePagamento formaDePagamento = getFormaDePagamento(formaPagamento);
-	
+
 		Pagamento pagamento = Pagamento.builder()
 				.totalCompra(totalCompra)
 				.formaDePagamento(formaDePagamento)
 				.taxaDesconto(desconto)
+				.valorEntrega(valorEntrega)
 				.build();
 
 		salvaPagamento(pagamento);

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -16,11 +17,15 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import com.ufcg.psoft.mercadofacil.DTO.CompraDTO;
+import com.ufcg.psoft.mercadofacil.DTO.EntregaDTO;
 import com.ufcg.psoft.mercadofacil.exception.CustomErrorType;
 import com.ufcg.psoft.mercadofacil.exception.ErroCompra;
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Compra;
+import com.ufcg.psoft.mercadofacil.model.Entrega;
+import com.ufcg.psoft.mercadofacil.model.EntregaPadrao;
 import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Pagamento;
@@ -57,6 +62,9 @@ public class CompraServiceTest {
 	private LoteService loteService;
 
 	@Mock
+	private EntregaService entregaService;
+
+	@Mock
 	private Carrinho carrinhoMock;
 
 	@Mock
@@ -75,9 +83,11 @@ public class CompraServiceTest {
 	@Test
 	public void finalizaCompraBoletoRetornaCompra() {
 		List<ItemCarrinho> itens = List.of(new ItemCarrinho(produtoMock, 2));
-		BigDecimal totalCompra = BigDecimal.valueOf(10);
-		String formaDePagamento = "boleto";
-
+        EntregaDTO entregaDto = new EntregaDTO("padrao", 5.3, "Paraiba");
+        CompraDTO compraDto = new CompraDTO("boleto", entregaDto);
+        BigDecimal totalCompra = BigDecimal.TEN;
+        Entrega entregaMock = mock(EntregaPadrao.class);
+        
 		setGetClienteById();
 		when(clienteMock.getCpf()).thenReturn(clienteCpf);
 		when(carrinhoService.getCarrinhoById(clienteCpf)).thenReturn(carrinhoMock);
@@ -88,11 +98,11 @@ public class CompraServiceTest {
 		when(carrinhoMock.getTotalItens()).thenReturn(2);
 		when(clienteMock.getTipo()).thenReturn(TipoCliente.NORMAL);
 		when(carrinhoMock.getTotal()).thenReturn(totalCompra);
-		when(pagamentoService.geraPagamento(
-				totalCompra, formaDePagamento, BigDecimal.ZERO))
+        when(entregaService.geraEntrega(any())).thenReturn(entregaMock);
+		when(pagamentoService.geraPagamento(any(), anyString(), any(), any()))
 						.thenReturn(pagamentoMock);
 
-		Compra compra = compraService.finalizaCompra(idCliente, formaDePagamento);
+		Compra compra = compraService.finalizaCompra(idCliente, compraDto);
 
 		assertEquals(clienteMock, compra.getCliente());
 		assertEquals(itens, compra.getProdutos());
@@ -107,7 +117,9 @@ public class CompraServiceTest {
 	public void finalizaCompraCreditoRetornaCompra() {
 		List<ItemCarrinho> itens = List.of(new ItemCarrinho(produtoMock, 4));
 		BigDecimal totalCompra = BigDecimal.valueOf(20);
-		String formaDePagamento = "credito";
+        EntregaDTO entregaDto = new EntregaDTO("padrao", 5.3, "Paraiba");
+        CompraDTO compraDto = new CompraDTO("credito", entregaDto);
+        Entrega entregaMock = mock(EntregaPadrao.class);
 
 		setGetClienteById();
 		when(clienteMock.getCpf()).thenReturn(clienteCpf);
@@ -119,11 +131,11 @@ public class CompraServiceTest {
 		when(carrinhoMock.getTotalItens()).thenReturn(4);
 		when(clienteMock.getTipo()).thenReturn(TipoCliente.NORMAL);
 		when(carrinhoMock.getTotal()).thenReturn(totalCompra);
-		when(pagamentoService.geraPagamento(
-				totalCompra, formaDePagamento, BigDecimal.ZERO))
+		when(entregaService.geraEntrega(any())).thenReturn(entregaMock);
+		when(pagamentoService.geraPagamento(any(), anyString(), any(), any()))
 						.thenReturn(pagamentoMock);
 
-		Compra compra = compraService.finalizaCompra(idCliente, formaDePagamento);
+		Compra compra = compraService.finalizaCompra(idCliente, compraDto);
 
 		assertEquals(clienteMock, compra.getCliente());
 		assertEquals(itens, compra.getProdutos());
@@ -138,7 +150,9 @@ public class CompraServiceTest {
 	public void finalizaCompraPaypalRetornaCompra() {
 		List<ItemCarrinho> itens = List.of(new ItemCarrinho(produtoMock, 6));
 		BigDecimal totalCompra = BigDecimal.valueOf(30);
-		String formaDePagamento = "paypal";
+        EntregaDTO entregaDto = new EntregaDTO("express", 5.3, "Paraiba");
+        CompraDTO compraDto = new CompraDTO("paypal", entregaDto);
+        Entrega entregaMock = mock(EntregaPadrao.class);
 
 		setGetClienteById();
 		when(clienteMock.getCpf()).thenReturn(clienteCpf);
@@ -150,11 +164,11 @@ public class CompraServiceTest {
 		when(carrinhoMock.getTotalItens()).thenReturn(6);
 		when(clienteMock.getTipo()).thenReturn(TipoCliente.NORMAL);
 		when(carrinhoMock.getTotal()).thenReturn(totalCompra);
-		when(pagamentoService.geraPagamento(
-				totalCompra, formaDePagamento, BigDecimal.ZERO))
+        when(entregaService.geraEntrega(any())).thenReturn(entregaMock);
+		when(pagamentoService.geraPagamento(any(), anyString(), any(), any()))
 						.thenReturn(pagamentoMock);
 
-		Compra compra = compraService.finalizaCompra(idCliente, formaDePagamento);
+		Compra compra = compraService.finalizaCompra(idCliente, compraDto);
 
 		assertEquals(clienteMock, compra.getCliente());
 		assertEquals(itens, compra.getProdutos());
@@ -167,7 +181,7 @@ public class CompraServiceTest {
 
 	@Test
 	public void finalizaCompraComCarrinhoVazioLancaErro() {
-		String formaDePagamento = "credito";
+        CompraDTO compraDto = mock(CompraDTO.class);
 
 		setGetClienteById();
 		when(clienteMock.getCpf()).thenReturn(clienteCpf);
@@ -175,7 +189,7 @@ public class CompraServiceTest {
 		when(carrinhoMock.isEmpty()).thenReturn(true);
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> compraService.finalizaCompra(idCliente, formaDePagamento));
+				() -> compraService.finalizaCompra(idCliente, compraDto));
 
 		assertEquals(ErroCompra.CARRINHO_VAZIO, erro.getMessage());
 
@@ -187,7 +201,7 @@ public class CompraServiceTest {
 	@Test
 	public void finalizaCompraComProdutoIndisponivelLancaErro() {
 		List<ItemCarrinho> itens = List.of(new ItemCarrinho(produtoMock, 6));
-		String formaDePagamento = "paypal";
+        CompraDTO compraDto = mock(CompraDTO.class);
 
 		setGetClienteById();
 		when(clienteMock.getCpf()).thenReturn(clienteCpf);
@@ -197,7 +211,7 @@ public class CompraServiceTest {
 		when(produtoMock.isDisponivel()).thenReturn(false);
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> compraService.finalizaCompra(idCliente, formaDePagamento));
+				() -> compraService.finalizaCompra(idCliente, compraDto));
 
 		assertEquals(ErroCompra.PRODUTOS_INDISPONIVEIS, erro.getMessage());
 
@@ -210,7 +224,7 @@ public class CompraServiceTest {
 	public void finalizaCompraComItensSemEstoqueLancaErro() {
 		List<ItemCarrinho> itens = List.of(new ItemCarrinho(produtoMock, 6));
 		List<ItemSemEstoque> semEstoque = List.of(new ItemSemEstoque(1L, 6, 3));
-		String formaDePagamento = "paypal";
+        CompraDTO compraDto = mock(CompraDTO.class);
 
 		setGetClienteById();
 		when(clienteMock.getCpf()).thenReturn(clienteCpf);
@@ -221,7 +235,7 @@ public class CompraServiceTest {
 		when(loteService.temEmEstoque(itens)).thenReturn(semEstoque);
 
 		CustomErrorType erro = assertThrows(CustomErrorType.class,
-				() -> compraService.finalizaCompra(idCliente, formaDePagamento));
+				() -> compraService.finalizaCompra(idCliente, compraDto));
 
 		assertEquals(ErroCompra.ESTOQUE_INSUFICIENTE, erro.getMessage());
 

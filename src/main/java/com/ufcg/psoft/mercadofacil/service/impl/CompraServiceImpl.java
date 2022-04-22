@@ -7,12 +7,15 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.ufcg.psoft.mercadofacil.DTO.CompraDTO;
 import com.ufcg.psoft.mercadofacil.exception.ErroCompra;
-import com.ufcg.psoft.mercadofacil.model.CalculoDeDescontoPorTipoCliente;
 import com.ufcg.psoft.mercadofacil.model.CalculoDeDescontoFactory;
+import com.ufcg.psoft.mercadofacil.model.CalculoDeDescontoPorTipoCliente;
+import com.ufcg.psoft.mercadofacil.model.CalculoDeEntregaPorTipoTransporte;
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Compra;
+import com.ufcg.psoft.mercadofacil.model.Entrega;
 import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Pagamento;
@@ -21,6 +24,7 @@ import com.ufcg.psoft.mercadofacil.repository.CompraRepository;
 import com.ufcg.psoft.mercadofacil.service.CarrinhoService;
 import com.ufcg.psoft.mercadofacil.service.ClienteService;
 import com.ufcg.psoft.mercadofacil.service.CompraService;
+import com.ufcg.psoft.mercadofacil.service.EntregaService;
 import com.ufcg.psoft.mercadofacil.service.LoteService;
 import com.ufcg.psoft.mercadofacil.service.PagamentoService;
 
@@ -45,26 +49,35 @@ public class CompraServiceImpl implements CompraService {
 	@Autowired
 	private LoteService loteService;
 
+	@Autowired
+	private EntregaService entregaService;
+
 	@Override
-	public Compra finalizaCompra(Long idCliente, String formaDePagamento) {
+	public Compra finalizaCompra(Long idCliente, CompraDTO compraDTO) {
 		Cliente cliente = clienteService.getClienteById(idCliente);
 		Long idCarrinho = cliente.getCpf();
 		Carrinho carrinho = carrinhoService.getCarrinhoById(idCarrinho);
 		List<ItemCarrinho> itens = getItensDoCarrinho(carrinho);
+		List<Produto> produtos = getProdutos(itens);
 
-		assertIsDisponivel(itens);
+		assertIsDisponivel(produtos);
 		assertTemEmEstoque(itens);
+
+		Entrega entrega = entregaService.geraEntrega(compraDTO.getEntrega());
+		CalculoDeEntregaPorTipoTransporte calculoTransporte = entregaService.getCalculoTransporte(produtos);
+		BigDecimal custoEntrega = entrega.calculaCustoEntrega(calculoTransporte);
 
 		int totalItens = carrinho.getTotalItens();
 		CalculoDeDescontoPorTipoCliente calculoDesconto = CalculoDeDescontoFactory.create(cliente.getTipo());
 		BigDecimal desconto = calculoDesconto.calculaDesconto(totalItens);
 		BigDecimal totalCompra = carrinho.getTotal();
-		Pagamento pagamento = pagamentoService.geraPagamento(totalCompra, formaDePagamento, desconto);
+		Pagamento pagamento = pagamentoService.geraPagamento(
+				totalCompra, compraDTO.getFormaDePagamento(), desconto, custoEntrega);
 
 		loteService.retiraItensDoEstoque(itens);
 		carrinhoService.removeTodosProdutos(carrinho);
 
-		Compra compra = new Compra(cliente, itens, pagamento);
+		Compra compra = new Compra(cliente, itens, pagamento, entrega);
 		salvaCompra(compra);
 
 		return compra;
@@ -98,9 +111,14 @@ public class CompraServiceImpl implements CompraService {
 		return carrinho.getItens();
 	}
 
-	private void assertIsDisponivel(List<ItemCarrinho> itens) {
-		List<Produto> indisponiveis = itens.stream()
+	private List<Produto> getProdutos(List<ItemCarrinho> itens) {
+		return itens.stream()
 				.map(ItemCarrinho::getProduto)
+				.collect(Collectors.toList());
+	}
+
+	private void assertIsDisponivel(List<Produto> produtos) {
+		List<Produto> indisponiveis = produtos.stream()
 				.filter(p -> !p.isDisponivel())
 				.collect(Collectors.toList());
 

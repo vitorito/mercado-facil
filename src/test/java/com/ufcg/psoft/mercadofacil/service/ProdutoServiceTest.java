@@ -20,6 +20,7 @@ import com.ufcg.psoft.mercadofacil.DTO.ProdutoDTO;
 import com.ufcg.psoft.mercadofacil.exception.CustomErrorType;
 import com.ufcg.psoft.mercadofacil.exception.ErroProduto;
 import com.ufcg.psoft.mercadofacil.model.Produto;
+import com.ufcg.psoft.mercadofacil.model.TipoTransporte;
 import com.ufcg.psoft.mercadofacil.repository.ProdutoRepository;
 import com.ufcg.psoft.mercadofacil.service.impl.ProdutoServiceImpl;
 
@@ -108,7 +109,7 @@ public class ProdutoServiceTest {
 	@Test
 	public void cadastraProdutoRetornaProduto() {
 		ProdutoDTO produtoDTO = geraProdutoDTO("Sabão Omo", codigoProduto, "Omo",
-				"Limpeza", BigDecimal.valueOf(5.50));
+				"Limpeza", BigDecimal.valueOf(5.50), "comum");
 
 		when(produtoRepository.existsByCodigoBarra(codigoProduto))
 				.thenReturn(false);
@@ -121,6 +122,7 @@ public class ProdutoServiceTest {
 		assertEquals(produtoDTO.getFabricante(), produto.getFabricante());
 		assertEquals(produtoDTO.getCategoria(), produto.getCategoria());
 		assertEquals(produtoDTO.getPreco(), produto.getPreco());
+		assertEquals(TipoTransporte.COMUM, produto.getTipoTransporte());
 
 		verify(produtoRepository, times(1)).save(produto);
 	}
@@ -172,7 +174,7 @@ public class ProdutoServiceTest {
 	@Test
 	public void atualizaProdutoRetornaProdutoAtualizado() {
 		ProdutoDTO produtoDTO = geraProdutoDTO("Sabão Omo", codigoProduto, "Omo",
-				"Limpeza", BigDecimal.valueOf(5.50));
+				"Limpeza", BigDecimal.valueOf(5.50), "comum");
 		when(produtoRepository.findByCodigoBarra(codigoProduto))
 				.thenReturn(produto1Op);
 
@@ -185,6 +187,7 @@ public class ProdutoServiceTest {
 		verify(produto1, times(1)).setFabricante(produtoDTO.getFabricante());
 		verify(produto1, times(1)).setCategoria(produtoDTO.getCategoria());
 		verify(produto1, times(1)).setPreco(produtoDTO.getPreco());
+		verify(produto1, times(1)).setTipoTransporte(TipoTransporte.COMUM);
 
 		verify(produtoRepository, times(1)).save(produto);
 	}
@@ -266,13 +269,14 @@ public class ProdutoServiceTest {
 
 
 	private ProdutoDTO geraProdutoDTO(String nome, String codigoBarra,
-			String fabricante, String categoria, BigDecimal preco) {
+			String fabricante, String categoria, BigDecimal preco, String tipoTransporte) {
 		return ProdutoDTO.builder()
 				.nome(nome)
 				.codigoBarra(codigoBarra)
 				.fabricante(fabricante)
 				.categoria(categoria)
 				.preco(preco)
+				.tipoTransporte(tipoTransporte)
 				.build();
 	}
 

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.ufcg.psoft.mercadofacil.model.FormaDePagamento;
 import com.ufcg.psoft.mercadofacil.model.ItemSemEstoque;
 import com.ufcg.psoft.mercadofacil.model.Produto;
+import com.ufcg.psoft.mercadofacil.model.TipoEntrega;
 
 import org.springframework.http.HttpStatus;
 
@@ -23,7 +24,10 @@ public class ErroCompra {
 			+ "O formato válido é yyyy-MM-dd.";
 
 	public static final String FORMA_PAGAMENTO_INVALIDA = "Forma de pagamento inválida."
-			+ "As formas válidas são: ";
+			+ "As formas válidas são: " + FormaDePagamento.valuesToString();
+
+	public static final String TIPO_ENTREGA_INVALIDO = "Tipo de entrega invalido. "
+			+ "Os tipos validos são: " + TipoEntrega.valuesToString();
 
 	public static CustomErrorType erroEstoqueInsuficiente(List<ItemSemEstoque> itens) {
 		var details = CustomErrorResponseDetails.builder()
@@ -61,9 +65,11 @@ public class ErroCompra {
 	}
 
 	public static CustomErrorType erroFormaDePagamentoInvalida() {
-		String message = FORMA_PAGAMENTO_INVALIDA + FormaDePagamento.valuesToString();
+		return new CustomErrorType(FORMA_PAGAMENTO_INVALIDA, HttpStatus.BAD_REQUEST);
+	}
 
-		return new CustomErrorType(message, HttpStatus.BAD_REQUEST);
+	public static CustomErrorType erroTipoEntregaInvalida() {
+		return new CustomErrorType(TIPO_ENTREGA_INVALIDO, HttpStatus.BAD_REQUEST);
 	}
 
 }
